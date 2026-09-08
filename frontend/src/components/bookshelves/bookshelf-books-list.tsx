@@ -31,3 +31,9 @@ export default async function BookshelfBooksList({ bookshelfId, params }: { book
         </ul>
     )
 }
+
+export function BookshelfBooksListSkeleton() {
+    <ul className="flex flex-col gap-6">
+
+    </ul>
+}

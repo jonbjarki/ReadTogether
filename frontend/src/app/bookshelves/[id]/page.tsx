@@ -1,8 +1,10 @@
 import BookshelfBook from "@/components/bookshelves/bookshelf-book";
 import BookshelfBooksList from "@/components/bookshelves/bookshelf-books-list";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authenticatedFetch } from "@/lib/authenticated-fetch";
 import { bookshelfDetailsSchema, bookshelfBooksPagingParams } from "@/zod/books/bookshelf-schemas";
 import Link from "next/link";
+import { Suspense } from "react";
 
 async function fetchBookshelf(id: number) {
     const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${id}`);
@@ -37,9 +39,11 @@ export default async function BookshelfPage(props: PageProps<"/bookshelves/[id]"
             <header className="w-full h-48">
                 <h2 className="m-auto text-xl font-bold text-center">{bookshelf.name}</h2>
             </header>
-            <ul className="flex flex-col gap-4">
-                <BookshelfBooksList bookshelfId={bookshelf.id} params={parsedParams.data} />
-            </ul>
+            <Suspense fallback={ }>
+                <ul className="flex flex-col gap-4">
+                    <BookshelfBooksList bookshelfId={bookshelf.id} params={parsedParams.data} />
+                </ul>
+            </Suspense>
 
         </main>
 
