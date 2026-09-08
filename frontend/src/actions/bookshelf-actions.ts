@@ -3,6 +3,7 @@
 import { authenticatedFetch, NotAuthenticatedError } from "@/lib/authenticated-fetch";
 import { BookItem } from "@/types/books/books-search-response";
 import { bookshelfListResponseSchema } from "@/zod/books/bookshelf-schemas";
+import { updateTag } from "next/cache";
 
 export async function fetchUserBookshelvesAction(username: string) {
     const res = await authenticatedFetch(process.env.API_URL + `bookshelves/user/${username}`);
@@ -57,7 +58,10 @@ export async function addToBookshelfAction(book: BookItem, bookshelfId: number) 
         method: "POST",
         body: JSON.stringify({
             title: book.title,
-            thumbnailUrl: book.coverImageUrl
+            coverImageUrl: book.coverImageUrl,
+            description: book.description,
+            authorName: book.authorName,
+            firstPublishedYear: book.firstPublishedYear
         }),
         headers: new Headers({ "Content-Type": "application/json" })
     });
@@ -67,6 +71,7 @@ export async function addToBookshelfAction(book: BookItem, bookshelfId: number) 
     }
     console.log("Response:", res);
     console.log("Successfully added book to bookshelf");
+    updateTag("user-bookshelves");
 
 }
 
@@ -82,5 +87,6 @@ export async function removeFromBookshelfAction(book: BookItem, bookshelfId: num
 
     console.log("Remove Response:", res);
     console.log("Removed book from shelf");
+    updateTag("user-bookshelves");
 
 }
