@@ -17,8 +17,9 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             var context = CreateContext();
             await SeedAsync(context, user, bookshelf);
 
-            var book = CreateBookshelfBook(bookshelf.Id, "Book 1");
-            await SeedAsync(context, book);
+            var book = CreateBook("Book 1");
+            var entry = CreateBookshelfBook(bookshelf.Id, "Book 1");
+            await SeedAsync(context, book, entry);
 
             // Act
             var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, 1, 10, CancellationToken.None);
@@ -26,7 +27,7 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             // Assert
             Assert.NotNull(books);
             Assert.Single(books.Results);
-            Assert.Equal(books.Results.Single().Id, book.VolumeId);
+            Assert.Equal(books.Results.Single().Id, entry.BookId);
             Assert.Equal(1, books.NumPages);
         }
 
@@ -41,8 +42,9 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
 
             for (int i = 1; i <= 5; i++)
             {
-                var book = CreateBookshelfBook(bookshelf.Id, $"Book {i}");
-                await SeedAsync(context, book);
+                var book = CreateBook($"Book {i}");
+                var entry = CreateBookshelfBook(bookshelf.Id, $"Book {i}");
+                await SeedAsync(context, book, entry);
             }
 
             // Act
@@ -67,8 +69,9 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             await SeedAsync(context, user, bookshelf);
             for (int i = 1; i <= 15; i++)
             {
-                var book = CreateBookshelfBook(bookshelf.Id, $"Book {i}");
-                await SeedAsync(context, book);
+                var book = CreateBook($"Book {i}");
+                var entry = CreateBookshelfBook(bookshelf.Id, $"Book {i}");
+                await SeedAsync(context, book, entry);
             }
 
             // Act

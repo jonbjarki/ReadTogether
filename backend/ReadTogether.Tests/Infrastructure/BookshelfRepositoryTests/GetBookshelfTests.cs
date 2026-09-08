@@ -28,8 +28,9 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             newerShelf.CreatedAt = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
             var otherUsersShelf = CreateBookshelf(OtherUserId, "Other user's shelf");
             await SeedAsync(context, owner, otherUser, olderShelf, newerShelf, otherUsersShelf);
-            var book = CreateBookshelfBook(newerShelf.Id);
-            await SeedAsync(context, book);
+            var book = CreateBook();
+            var entry = CreateBookshelfBook(newerShelf.Id);
+            await SeedAsync(context, book, entry);
 
             var result = await new BookshelfRepository(context)
                 .GetBookshelvesByUserId(owner.Id, CancellationToken.None);

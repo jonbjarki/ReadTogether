@@ -47,12 +47,13 @@ namespace ReadTogether.Infrastructure.Implementations
         {
             var req = _context.BookshelfBooks
                 .AsNoTracking()
-                .Where(bb => bb.BookshelfId == bookshelfId);
+                .Where(bb => bb.BookshelfId == bookshelfId)
+                .Include(bb => bb.Book);
 
             var count = await req.CountAsync(cancellationToken);
 
             var books = await req
-                .OrderByDescending(bb => bb.Title)
+                .OrderByDescending(bb => bb.AddedAt)
                 .Skip(pageSize * (pageNumber - 1))
                 .Take(pageSize)
                 .ToListAsync(cancellationToken);
@@ -61,9 +62,11 @@ namespace ReadTogether.Infrastructure.Implementations
             {
                 Results = books.Select(bb => new BookshelfBookDto
                 {
-                    Id = bb.VolumeId,
-                    Title = bb.Title,
-                    CoverImageUrl = bb.ThumbnailUrl
+                    Id = bb.BookId,
+                    Title = bb.Book.Title,
+                    CoverImageUrl = bb.Book.CoverImageUrl,
+                    AuthorName = bb.Book.AuthorName,
+                    FirstPublishedYear = bb.Book.FirstPublishedYear,
                 }).ToList(),
                 Page = pageNumber,
                 PageSize = pageSize,
@@ -82,23 +85,39 @@ namespace ReadTogether.Infrastructure.Implementations
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, string bookId, string title, string thumbnailUrl, CancellationToken cancellationToken)
+        public async Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, BookMetadataDto metadata, CancellationToken cancellationToken)
         {
+            var bookId = metadata.Id;
+
             var alreadyExists = await _context.BookshelfBooks
                 .AsNoTracking()
-                .AnyAsync(bb => bb.BookshelfId == bookshelfId && bb.VolumeId == bookId, cancellationToken);
+                .AnyAsync(bb => bb.BookshelfId == bookshelfId && bb.BookId == bookId, cancellationToken);
 
             if (alreadyExists)
             {
                 throw new BookshelfBookConflictException(bookshelfId, bookId);
             }
 
+            // The local book copy is shared across shelves: create it only the first time any
+            // shelf references this volume, and reuse the existing record on subsequent adds.
+            var book = await _context.Books.FindAsync([bookId], cancellationToken);
+            if (book is null)
+            {
+                book = new Book
+                {
+                    Id = bookId,
+                    Title = metadata.Title,
+                    AuthorName = metadata.AuthorName,
+                    FirstPublishedYear = metadata.FirstPublishedYear,
+                    CoverImageUrl = metadata.CoverImageUrl
+                };
+                _context.Books.Add(book);
+            }
+
             var bookshelfBook = new BookshelfBook
             {
                 BookshelfId = bookshelfId,
-                VolumeId = bookId,
-                Title = title,
-                ThumbnailUrl = thumbnailUrl
+                BookId = bookId
             };
 
             _context.BookshelfBooks.Add(bookshelfBook);
@@ -118,7 +137,7 @@ namespace ReadTogether.Infrastructure.Implementations
         {
             var book = await _context.BookshelfBooks
             .Include(bb => bb.Bookshelf)
-            .FirstOrDefaultAsync(bb => bb.BookshelfId == bookshelfId && bb.VolumeId == bookId, cancellationToken);
+            .FirstOrDefaultAsync(bb => bb.BookshelfId == bookshelfId && bb.BookId == bookId, cancellationToken);
 
             if (book is not null && book.Bookshelf.UserId == userId)
             {

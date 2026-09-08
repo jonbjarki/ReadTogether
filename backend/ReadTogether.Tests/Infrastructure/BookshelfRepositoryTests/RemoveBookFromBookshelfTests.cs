@@ -12,16 +12,17 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             var user = CreateUser();
             var bookshelf = CreateBookshelf();
             await SeedAsync(context, user, bookshelf);
-            var book = CreateBookshelfBook(bookshelf.Id);
-            await SeedAsync(context, book);
+            var book = CreateBook();
+            var entry = CreateBookshelfBook(bookshelf.Id);
+            await SeedAsync(context, book, entry);
 
             var result = await new BookshelfRepository(context)
-                .RemoveBookFromBookshelf(bookshelf.Id, book.VolumeId, user.Id, CancellationToken.None);
+                .RemoveBookFromBookshelf(bookshelf.Id, entry.BookId, user.Id, CancellationToken.None);
 
             Assert.True(result);
 
             await using var verificationContext = CreateContext();
-            Assert.Null(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book.VolumeId));
+            Assert.Null(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, entry.BookId));
         }
 
         [Fact]
@@ -32,14 +33,15 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             var otherUser = CreateUser(OtherUserId, "John", "john@example.test");
             var bookshelf = CreateBookshelf();
             await SeedAsync(context, owner, otherUser, bookshelf);
-            var book = CreateBookshelfBook(bookshelf.Id);
-            await SeedAsync(context, book);
+            var book = CreateBook();
+            var entry = CreateBookshelfBook(bookshelf.Id);
+            await SeedAsync(context, book, entry);
 
             await Assert.ThrowsAsync<AccessDeniedException>(() => new BookshelfRepository(context)
-                .RemoveBookFromBookshelf(bookshelf.Id, book.VolumeId, otherUser.Id, CancellationToken.None));
+                .RemoveBookFromBookshelf(bookshelf.Id, entry.BookId, otherUser.Id, CancellationToken.None));
 
             await using var verificationContext = CreateContext();
-            Assert.NotNull(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book.VolumeId));
+            Assert.NotNull(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, entry.BookId));
         }
 
         [Fact]

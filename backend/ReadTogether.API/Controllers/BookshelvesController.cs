@@ -13,6 +13,7 @@ using ReadTogether.Application.Features.Bookshelves.GetBookshelf;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelfBooks;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser;
 using ReadTogether.Application.Features.Bookshelves.RemoveBookFromBookshelf;
+using ReadTogether.Domain.DTOs;
 using Superpower.Model;
 
 namespace ReadTogether.API.Controllers
@@ -110,7 +111,15 @@ namespace ReadTogether.API.Controllers
                 return Unauthorized();
             }
 
-            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, inputModel.Title, inputModel.ThumbnailUrl, userId);
+            var metadata = new BookMetadataDto
+            {
+                Id = bookId,
+                Title = inputModel.Title,
+                AuthorName = inputModel.AuthorName,
+                FirstPublishedYear = inputModel.FirstPublishedYear,
+                CoverImageUrl = inputModel.CoverImageUrl
+            };
+            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, metadata, userId);
             var result = await _mediator.Send(command);
             return Ok(result);
         }

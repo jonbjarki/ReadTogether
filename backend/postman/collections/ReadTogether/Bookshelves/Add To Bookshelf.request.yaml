@@ -1,5 +1,19 @@
 $kind: http-request
-url: ""
-method: GET
+name: Add To Bookshelf
+url: "{{base_url}}/bookshelves/14/books/DCmuEQAAQBAJ"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"title\": \"Percy Jackson and the Olympians: The Sea of Monsters, The Graphic Novel\",\r
+
+    \    \"author\": \"Rick Riordan\",\r
+
+    \    \"firstPublished\": 2013,\r
+
+    \    \"coverImageUrl\": \"http://books.google.com/books/content?id=DCmuEQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api\"\r
+
+    }"
 settings: {}
 order: 4000

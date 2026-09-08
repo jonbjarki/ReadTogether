@@ -9,3 +9,7 @@ cloudResources:
   environments:
     ../postman/environments/Development.environment.yaml: 49274450-236b7c8b-1471-4cf4-bdbc-562625dd811b
     ../postman/environments/Nginx.environment.yaml: 49274450-bc293e4b-cc28-468a-ba74-2b1cbb9dbe28
+
+localResources:
+  specs:
+    - ../ReadTogether.API/obj/Debug/net10.0/EndpointInfo/ReadTogether.API.json
