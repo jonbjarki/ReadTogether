@@ -14,7 +14,16 @@ namespace ReadTogether.Infrastructure.Interfaces
         Task<Bookshelf?> GetBookshelfById(int id, CancellationToken cancellationToken);
         Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, CancellationToken cancellationToken);
         Task<List<Bookshelf>> GetBookshelvesByUserId(string userId, CancellationToken cancellationToken);
-        Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, string bookId, string title, string thumbnailUrl, CancellationToken cancellationToken);
+        /// <summary>
+        /// Adds a book to a bookshelf, creating the shared local <see cref="Book"/> copy from
+        /// <paramref name="metadata"/> when it does not exist yet and linking it via a join entry.
+        /// </summary>
+        /// <param name="bookshelfId">The ID of the bookshelf to add the book to.</param>
+        /// <param name="metadata">The book metadata; <see cref="BookMetadataDto.Id"/> identifies the book.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The created <see cref="BookshelfBook"/> join entry.</returns>
+        /// <exception cref="ReadTogether.Infrastructure.Exceptions.BookshelfBookConflictException">The book is already on the bookshelf.</exception>
+        Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, BookMetadataDto metadata, CancellationToken cancellationToken);
         Task<bool> RemoveBookFromBookshelf(int bookshelfId, string bookId, string userId, CancellationToken cancellationToken);
         Task<bool> DeleteBookshelf(int bookshelfId, string userId, CancellationToken cancellationToken);
     }

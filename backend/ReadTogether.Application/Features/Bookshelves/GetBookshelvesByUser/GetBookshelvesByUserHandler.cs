@@ -36,7 +36,7 @@ namespace ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser
                     Description = bookshelf.Description,
                     IsDefaultShelf = bookshelf.IsDefaultShelf,
                     CreatedAt = bookshelf.CreatedAt,
-                    IsBookInShelf = request.BookId is not null ? bookshelf.BookshelfBooks.Any(b => b.VolumeId == request.BookId) : null
+                    IsBookInShelf = request.BookId is not null ? bookshelf.BookshelfBooks.Any(b => b.BookId == request.BookId) : null
                 })
                 .ToList();
         }

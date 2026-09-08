@@ -1,4 +1,5 @@
 using MediatR;
+using ReadTogether.Domain.DTOs;
 using ReadTogether.Infrastructure.Exceptions;
 using ReadTogether.Infrastructure.Interfaces;
 
@@ -21,11 +22,12 @@ namespace ReadTogether.Application.Features.Bookshelves.AddBookToBookshelf
                 throw new NotFoundException("Bookshelf", request.BookshelfId.ToString());
             }
 
-            var bookshelfBook = await _bookshelfRepository.AddBookToBookshelf(request.BookshelfId, request.BookId, request.Title, request.ThumbnailUrl, cancellationToken);
+            var metadata = request.Metadata with { Id = request.BookId };
+            var bookshelfBook = await _bookshelfRepository.AddBookToBookshelf(request.BookshelfId, metadata, cancellationToken);
             return new AddBookToBookshelfDto
             {
                 BookshelfId = bookshelfBook.BookshelfId,
-                VolumeId = bookshelfBook.VolumeId
+                Id = bookshelfBook.BookId
             };
         }
     }

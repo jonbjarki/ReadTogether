@@ -4,10 +4,15 @@ import { decode, getToken } from "next-auth/jwt";
 import { redirect, RedirectType } from 'next/navigation'
 import { cookies } from "next/headers";
 
-export class AuthenticationError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "AuthenticationError";
+export class NotAuthenticatedError extends Error {
+    constructor() {
+        super();
+        this.name = 'ValidationError';
+        Object.setPrototypeOf(this, NotAuthenticatedError.prototype);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, NotAuthenticatedError);
+        }
     }
 }
 
@@ -33,6 +38,7 @@ async function getDecodedToken() {
 
     return decodedToken.accessToken;
 }
+
 
 /**
 Utility function for making authenticated requests to the backend API.

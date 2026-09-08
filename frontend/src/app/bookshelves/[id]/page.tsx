@@ -34,7 +34,9 @@ export default async function BookshelfPage(props: PageProps<"/bookshelves/[id]"
     const bookshelf = await fetchBookshelf(bookshelfId);
     return (
         <main>
-            <h2>{bookshelf.name}</h2>
+            <header className="w-full h-48">
+                <h2 className="m-auto text-xl font-bold text-center">{bookshelf.name}</h2>
+            </header>
             <ul className="flex flex-col gap-4">
                 <BookshelfBooksList bookshelfId={bookshelf.id} params={parsedParams.data} />
             </ul>

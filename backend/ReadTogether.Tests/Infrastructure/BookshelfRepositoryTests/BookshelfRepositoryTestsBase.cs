@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using ReadTogether.Domain.Contexts;
+using ReadTogether.Domain.DTOs;
 using ReadTogether.Domain.Entities;
 using ReadTogether.Infrastructure.Implementations;
 
@@ -46,15 +47,35 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             bool isDefaultShelf = false)
             => new() { UserId = userId, Name = name, IsDefaultShelf = isDefaultShelf };
 
+        protected static Book CreateBook(
+            string id = "book-1",
+            string title = "Test book",
+            string? coverImageUrl = "https://example.test/book.jpg")
+            => new()
+            {
+                Id = id,
+                Title = title,
+                CoverImageUrl = coverImageUrl
+            };
+
         protected static BookshelfBook CreateBookshelfBook(
             int bookshelfId,
-            string volumeId = "book-1")
+            string bookId = "book-1")
             => new()
             {
                 BookshelfId = bookshelfId,
-                VolumeId = volumeId,
-                Title = "Test book",
-                ThumbnailUrl = "https://example.test/book.jpg"
+                BookId = bookId
+            };
+
+        protected static BookMetadataDto CreateMetadata(
+            string id = "book-1",
+            string title = "Test book")
+            => new()
+            {
+                Id = id,
+                Title = title,
+                AuthorName = "Test Author",
+                CoverImageUrl = "https://example.test/book.jpg"
             };
 
         protected static async Task SeedAsync(

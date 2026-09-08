@@ -13,6 +13,7 @@ namespace ReadTogether.Domain.Contexts
         public BooksDbContext(DbContextOptions<BooksDbContext> options) : base(options) { }
 
         public DbSet<Bookshelf> Bookshelves { get; set; } = null!;
+        public DbSet<Book> Books { get; set; } = null!;
         public DbSet<BookshelfBook> BookshelfBooks { get; set; } = null!;
     }
 }

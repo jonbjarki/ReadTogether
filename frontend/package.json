@@ -7,6 +7,7 @@
     "@teispace/next-themes": "^3.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cn": "^0.2.6",
     "dompurify": "^3.4.14",
     "html-react-parser": "^6.1.7",
     "jsdom": "^29.1.1",
