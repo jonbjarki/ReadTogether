@@ -12,7 +12,9 @@ export const bookshelfListItemSchema = z.object({
 export const bookshelfListBookItemSchema = z.object({
     id: z.string(),
     title: z.string(),
-    coverImageUrl: z.url().nullable()
+    coverImageUrl: z.url().nullable(),
+    firstPublishedYear: z.number().nullable(),
+    authorName: z.string().nullable()
 });
 
 export const bookshelfDetailsSchema = z.object({

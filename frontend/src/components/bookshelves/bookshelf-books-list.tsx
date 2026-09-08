@@ -23,9 +23,11 @@ export default async function BookshelfBooksList({ bookshelfId, params }: { book
     const res = await fetchBookshelfBooks(bookshelfId, params);
     const books = res.results;
 
-    return (books.map((book) => (
-        <li key={book.id}>
-            <BookshelfBook book={book} />
-        </li>
-    )))
+    return (
+        <ul className="flex flex-col gap-6">
+            {books.map((book) => (
+                <BookshelfBook book={book} key={book.id} />
+            ))}
+        </ul>
+    )
 }
