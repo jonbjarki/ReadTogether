@@ -59,8 +59,7 @@ namespace ReadTogether.Application.Features.Auth.GoogleSignIn
                 var res = await userManager.CreateAsync(user);
                 if (!res.Succeeded)
                 {
-                    // TODO: Throw custom exception
-                    throw new Exception("Failed to create account");
+                    throw new Exception("Failed to create account: " + string.Join(", ", res.Errors));
                 }
 
                 if (defaultBookshelves.Length > 0)
