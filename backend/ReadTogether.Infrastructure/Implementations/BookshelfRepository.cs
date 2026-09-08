@@ -61,9 +61,9 @@ namespace ReadTogether.Infrastructure.Implementations
             {
                 Results = books.Select(bb => new BookshelfBookDto
                 {
-                    VolumeId = bb.VolumeId,
+                    Id = bb.VolumeId,
                     Title = bb.Title,
-                    ThumbnailUrl = bb.ThumbnailUrl
+                    CoverImageUrl = bb.ThumbnailUrl
                 }).ToList(),
                 Page = pageNumber,
                 PageSize = pageSize,

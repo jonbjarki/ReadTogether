@@ -26,7 +26,7 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             // Assert
             Assert.NotNull(books);
             Assert.Single(books.Results);
-            Assert.Equal(books.Results.Single().VolumeId, book.VolumeId);
+            Assert.Equal(books.Results.Single().Id, book.VolumeId);
             Assert.Equal(1, books.NumPages);
         }
 

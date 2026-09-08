@@ -22,20 +22,14 @@ export const bookshelfDetailsSchema = z.object({
 });
 
 export const bookshelfBooksPagingParams = z.object({
-    page: z.string(),
-});
-
-export const bookshelfBooksItem = z.object({
-    volumeId: z.string(),
-    title: z.string(),
-    thumbnailUrl: z.string(),
+    page: z.string().default("1"),
 });
 
 export const bookshelfBooksResponseSchema = z.object({
     page: z.number(),
     pageSize: z.number(),
     numPages: z.number(),
-    results: z.array(bookshelfBooksItem)
+    results: z.array(bookshelfListBookItemSchema)
 });
 
 export const bookshelfListResponseSchema = z.array(bookshelfListItemSchema);
