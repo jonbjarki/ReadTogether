@@ -25,7 +25,8 @@ namespace ReadTogether.Application.Features.Bookshelves.GetBookshelf
             {
                 Id = bookshelf.Id,
                 Name = bookshelf.Name,
-                UserId = bookshelf.UserId
+                UserId = bookshelf.UserId,
+                TotalBooks = bookshelf.BookshelfBooks.Count
             };
         }
     }

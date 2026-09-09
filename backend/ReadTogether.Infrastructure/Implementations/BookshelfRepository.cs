@@ -40,6 +40,7 @@ namespace ReadTogether.Infrastructure.Implementations
         {
             return await _context.Bookshelves
                 .AsNoTracking()
+                .Include(b => b.BookshelfBooks)
                 .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
 
@@ -70,7 +71,7 @@ namespace ReadTogether.Infrastructure.Implementations
                 }).ToList(),
                 Page = pageNumber,
                 PageSize = pageSize,
-                NumPages = (int)Math.Ceiling((double)count / pageSize)
+                Total = count
             };
 
             return res;

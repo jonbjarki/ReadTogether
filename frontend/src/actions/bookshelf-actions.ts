@@ -2,8 +2,34 @@
 
 import { authenticatedFetch, NotAuthenticatedError } from "@/lib/authenticated-fetch";
 import { BookItem } from "@/types/books/books-search-response";
-import { bookshelfListResponseSchema } from "@/zod/books/bookshelf-schemas";
+import { bookshelfDetailsSchema, bookshelfListResponseSchema } from "@/zod/books/bookshelf-schemas";
 import { updateTag } from "next/cache";
+import { notFound } from "next/navigation";
+
+
+export async function fetchBookshelf(id: number) {
+    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${id}`);
+    if (!res.ok) {
+        if (res.status == 404) {
+            notFound();
+        }
+        throw new Error("Error occurred when fetching the bookshelf, please try again later");
+    }
+
+    console.log("Fetching bookshelf");
+    const unvalidated = await res.json();
+    const validation = bookshelfDetailsSchema.safeParse(unvalidated);
+    console.log("Unvalidated:", unvalidated);
+
+    if (!validation.success) {
+        console.error("Validation error in fetch bookshelf {0}", validation.error);
+        throw new Error("Something went wrong when validating bookshelf response");
+    }
+
+    const data = validation.data;
+    console.log("Data:", data);
+    return data;
+}
 
 export async function fetchUserBookshelvesAction(username: string) {
     const res = await authenticatedFetch(process.env.API_URL + `bookshelves/user/${username}`);

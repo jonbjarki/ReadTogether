@@ -20,17 +20,17 @@ export const bookshelfListBookItemSchema = z.object({
 export const bookshelfDetailsSchema = z.object({
     id: z.number(),
     name: z.string(),
-    description: z.string().nullish(),
+    totalBooks: z.number()
 });
 
 export const bookshelfBooksPagingParams = z.object({
-    page: z.string().default("1"),
+    page: z.coerce.number().default(1),
 });
 
 export const bookshelfBooksResponseSchema = z.object({
     page: z.number(),
     pageSize: z.number(),
-    numPages: z.number(),
+    total: z.number(),
     results: z.array(bookshelfListBookItemSchema)
 });
 

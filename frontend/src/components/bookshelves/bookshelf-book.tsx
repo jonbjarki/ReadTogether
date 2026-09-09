@@ -17,18 +17,17 @@ function getSubtitle(author: string | null, firstPublished: string | null) {
 }
 
 
-
-export default function BookshelfBook({ book }: { book: BookshelfBookItem }) {
+export default function BookshelfBook({ book, index }: { book: BookshelfBookItem, index: number }) {
     const subtitle = getSubtitle(book.authorName, book.firstPublishedYear?.toString() ?? null);
 
     return (
-        <li>
-            <Link href={"/books/" + book.id} className="flex flex-row gap-4 books-center justify-left">
-                <div className="relative w-32 h-48">
+        <li className="flex flex-row items-center gap-2">
+            <Link href={"/books/" + book.id} className="flex flex-row gap-4 items-center justify-left">
+                <div className="relative w-20 min-w-20 h-34">
                     <CoverImageWithFallback title={book.title ?? ""} url={book.coverImageUrl} />
                 </div>
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-sm lg:text-lg font-semibold">{book.title}</h3>
+                <div className="flex flex-col gap-4 max-w-100">
+                    <h3 className="text-sm lg:text-base font-semibold">{book.title}</h3>
                     <p className="text-gray-600 dark:text-gray-300 font-light text-xs lg:text-sm">{subtitle}</p>
                 </div>
             </Link>

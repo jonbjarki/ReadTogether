@@ -45,9 +45,9 @@ namespace ReadTogether.API.Controllers
         }
 
         [HttpGet("{id}/books")]
-        public async Task<IActionResult> GetBookshelfBooks(int id, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetBookshelfBooks(int id, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var query = new GetBookshelfBooksQuery(id, pageNumber, pageSize);
+            var query = new GetBookshelfBooksQuery(id, page, pageSize);
             var result = await _mediator.Send(query, HttpContext.RequestAborted);
             return Ok(result.Data);
         }

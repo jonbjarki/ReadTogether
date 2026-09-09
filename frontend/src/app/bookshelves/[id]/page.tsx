@@ -1,28 +1,9 @@
-import BookshelfBook from "@/components/bookshelves/bookshelf-book";
-import BookshelfBooksList from "@/components/bookshelves/bookshelf-books-list";
-import { Skeleton } from "@/components/ui/skeleton";
-import { authenticatedFetch } from "@/lib/authenticated-fetch";
-import { bookshelfDetailsSchema, bookshelfBooksPagingParams } from "@/zod/books/bookshelf-schemas";
-import Link from "next/link";
-import { Suspense } from "react";
+import { fetchBookshelf } from "@/actions/bookshelf-actions";
+import { fetchBookshelfBooks } from "@/actions/bookshelf-queries";
+import Bookshelf from "@/components/bookshelves/bookshelf";
+import { bookshelfBooksPagingParams } from "@/zod/books/bookshelf-schemas";
+import { notFound } from "next/navigation";
 
-async function fetchBookshelf(id: number) {
-    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${id}`);
-
-    console.log("Fetching bookshelf");
-    const unvalidated = await res.json();
-    const validation = bookshelfDetailsSchema.safeParse(unvalidated);
-    console.log("Unvalidated:", unvalidated);
-
-    if (!validation.success) {
-        console.error("Validation error in fetch bookshelf", validation.error);
-        throw new Error("Something went wrong when validating bookshelf response");
-    }
-
-    const data = validation.data;
-    console.log("Data:", data);
-    return data;
-}
 
 export default async function BookshelfPage(props: PageProps<"/bookshelves/[id]">) {
     const { id } = await props.params;
@@ -33,19 +14,14 @@ export default async function BookshelfPage(props: PageProps<"/bookshelves/[id]"
     }
 
     const bookshelfId = parseInt(id);
+    if (Number.isNaN(bookshelfId)) {
+        notFound();
+    }
     const bookshelf = await fetchBookshelf(bookshelfId);
+    // Not awaited so it can be streamed in with use() client-side
+    const booksPromise = fetchBookshelfBooks(bookshelfId, parsedParams.data);
+
     return (
-        <main>
-            <header className="w-full h-48">
-                <h2 className="m-auto text-xl font-bold text-center">{bookshelf.name}</h2>
-            </header>
-            <Suspense fallback={ }>
-                <ul className="flex flex-col gap-4">
-                    <BookshelfBooksList bookshelfId={bookshelf.id} params={parsedParams.data} />
-                </ul>
-            </Suspense>
-
-        </main>
-
+        <Bookshelf bookshelf={bookshelf} params={parsedParams.data} booksPromise={booksPromise} />
     )
 }
