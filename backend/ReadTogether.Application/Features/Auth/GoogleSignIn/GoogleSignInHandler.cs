@@ -50,7 +50,7 @@ namespace ReadTogether.Application.Features.Auth.GoogleSignIn
                 user = new ApplicationUser
                 {
                     Email = googleUser.Email,
-                    UserName = googleUser.Name ?? googleUser.Email,
+                    UserName = googleUser.Email,
                     EmailConfirmed = googleUser.EmailVerified,
                     ImageUrl = googleUser.PictureUrl,
                     DateCreated = DateTime.UtcNow
@@ -59,8 +59,7 @@ namespace ReadTogether.Application.Features.Auth.GoogleSignIn
                 var res = await userManager.CreateAsync(user);
                 if (!res.Succeeded)
                 {
-                    // TODO: Throw custom exception
-                    throw new Exception("Failed to create account");
+                    throw new Exception("Failed to create account: " + string.Join(", ", res.Errors.Select(e => e.Description)));
                 }
 
                 if (defaultBookshelves.Length > 0)
