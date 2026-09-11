@@ -3,11 +3,6 @@ import { SortAscIcon, SortDescIcon } from "lucide-react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { ChangeEvent, ReactEventHandler, SyntheticEvent } from "react"
 
-type BookshelfBookFiltersProps = {
-    selectMode: boolean;
-    setSelectMode: (val: boolean) => void;
-}
-
 // Maps internal ordering fields to more natural words
 const SELECT_MAP: Record<OrderByOptions, string> = {
     "dateAdded": "Date Added",
@@ -15,7 +10,7 @@ const SELECT_MAP: Record<OrderByOptions, string> = {
     "year": "Year"
 }
 
-export default function BookshelfBookFilters(props: BookshelfBookFiltersProps) {
+export default function BookshelfBookFilters() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();

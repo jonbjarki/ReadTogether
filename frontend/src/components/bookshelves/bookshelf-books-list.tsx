@@ -1,12 +1,28 @@
 "use client"
 
-import { BookshelfBooksResponse, BookshelfPageParams } from "@/types/bookshelves/bookshelf-types";
+import { BookshelfBooksResponse, BookshelfDetails, BookshelfPageParams } from "@/types/bookshelves/bookshelf-types";
 import BookshelfBook from "./bookshelf-book";
 import { Skeleton } from "../ui/skeleton";
 import BookshelfPagination from "./bookshelf-pagination";
-import { use } from "react";
+import { use, useState } from "react";
+import { BookItem } from "@/types/books/books-search-response";
+import { X } from "lucide-react";
+import { Button } from "../ui/button";
 
 export default function BookshelfBooksList({ params, booksPromise }: { params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse> }) {
+    const [isSelectMode, setIsSelectMode] = useState(false);
+    const [selectedBooks, setSelectedBooks] = useState<Record<BookItem["id"], boolean>>({});
+
+    const handleSelected = (val: boolean, id: BookItem["id"]) => {
+        setSelectedBooks(books => ({ ...books, [id]: val }))
+    }
+
+    const toggleSelectMode = () => {
+        setSelectedBooks({});
+        setIsSelectMode(x => !x);
+    }
+
+
     const res = use(booksPromise);
     const books = res.results;
     const maxPage = Math.ceil(res.total / res.pageSize);
@@ -15,8 +31,9 @@ export default function BookshelfBooksList({ params, booksPromise }: { params: B
     }
     return (
         <ul className="flex flex-col gap-6">
+            <Button variant={"outline"} className="px-2 py-1 w-fit" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
             {books.map((book, i) => (
-                <BookshelfBook book={book} key={book.id} index={((res.page - 1) * res.pageSize) + (i + 1)} />
+                <BookshelfBook book={book} key={book.id} isSelectMode={isSelectMode} isSelected={!!selectedBooks[book.id]} handleSelected={handleSelected} />
             ))}
             <BookshelfPagination page={params.page} maxPage={maxPage} />
         </ul>

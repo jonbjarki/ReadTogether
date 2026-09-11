@@ -5,16 +5,13 @@ import BookshelfBooksList, { BookshelfBooksListSkeleton } from "./bookshelf-book
 import BookshelfBookFilters from "./bookshelf-book-filter";
 
 export default function Bookshelf({ bookshelf, params, booksPromise }: { bookshelf: BookshelfDetails, params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse> }) {
-    const [selectMode, setSelectMode] = useState(false);
-
     return (
         <main>
             <header className="w-full min-h-30 flex flex-col justify-center gap-6">
                 <h2 className="mx-auto text-2xl font-bold text-center">{bookshelf.name}</h2>
                 <div className="flex flex-row justify-between">
                     <p className="text-sm ml-2">{bookshelf.totalBooks} books</p>
-                    <BookshelfBookFilters selectMode={selectMode} setSelectMode={setSelectMode} />
-
+                    <BookshelfBookFilters />
                 </div>
             </header>
             <ul className="flex flex-col gap-4">
