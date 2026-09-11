@@ -18,6 +18,8 @@ namespace ReadTogether.Application.Features.Bookshelves.GetBookshelfBooks
                 request.BookshelfId,
                 request.PageNumber,
                 request.PageSize,
+                request.OrderBy,
+                request.OrderDir,
                 cancellationToken);
 
             return new GetBookshelfBooksDto

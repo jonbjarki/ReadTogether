@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ReadTogether.Domain.Common;
 using ReadTogether.Domain.DTOs;
 using ReadTogether.Domain.Entities;
+using static ReadTogether.Domain.Common.SortingTypes;
 
 namespace ReadTogether.Infrastructure.Interfaces
 {
@@ -12,7 +13,7 @@ namespace ReadTogether.Infrastructure.Interfaces
     {
         Task<Bookshelf> CreateBookshelf(string name, string userId, CancellationToken cancellationToken, bool isDefaultShelf = false);
         Task<Bookshelf?> GetBookshelfById(int id, CancellationToken cancellationToken);
-        Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, CancellationToken cancellationToken);
+        Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, OrderBy orderBy, OrderDir orderDir, CancellationToken cancellationToken);
         Task<List<Bookshelf>> GetBookshelvesByUserId(string userId, CancellationToken cancellationToken);
         /// <summary>
         /// Adds a book to a bookshelf, creating the shared local <see cref="Book"/> copy from

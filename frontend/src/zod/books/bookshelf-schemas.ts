@@ -1,5 +1,6 @@
 import { number, z } from "zod";
 import { bookItemSchema } from "./books-schemas";
+import { DIR_OPTIONS, ORDER_OPTIONS } from "@/types/bookshelves/bookshelf-types";
 
 
 export const bookshelfListItemSchema = z.object({
@@ -25,6 +26,9 @@ export const bookshelfDetailsSchema = z.object({
 
 export const bookshelfBooksPagingParams = z.object({
     page: z.coerce.number().default(1),
+    pageSize: z.coerce.number().default(10),
+    orderBy: z.enum(ORDER_OPTIONS).optional().default("dateAdded"),
+    orderDir: z.enum(DIR_OPTIONS).optional().default("desc")
 });
 
 export const bookshelfBooksResponseSchema = z.object({

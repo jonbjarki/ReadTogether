@@ -7,7 +7,7 @@ export type BookshelfBookItem = z.infer<typeof bookshelfListBookItemSchema>;
 export type BookshelfPageParams = z.infer<typeof bookshelfPageParams>;
 export type BookshelfBooksResponse = z.infer<typeof bookshelfBooksResponseSchema>;
 
-export const SORT_OPTIONS = ["title", "dateAdded", "year"] as const;
+export const ORDER_OPTIONS = ["dateAdded", "title", "year"] as const;
 export const DIR_OPTIONS = ["asc", "desc"] as const;
-export type SortByOptions = typeof SORT_OPTIONS[number];
-export type SortDirectionOptions = typeof DIR_OPTIONS[number];
+export type OrderByOptions = typeof ORDER_OPTIONS[number];
+export type OrderDirectionOptions = typeof DIR_OPTIONS[number];

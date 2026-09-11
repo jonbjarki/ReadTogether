@@ -9,6 +9,7 @@ using ReadTogether.Domain.DTOs;
 using ReadTogether.Domain.Entities;
 using ReadTogether.Infrastructure.Exceptions;
 using ReadTogether.Infrastructure.Interfaces;
+using static ReadTogether.Domain.Common.SortingTypes;
 
 namespace ReadTogether.Infrastructure.Implementations
 {
@@ -44,7 +45,7 @@ namespace ReadTogether.Infrastructure.Implementations
                 .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
 
-        public async Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, CancellationToken cancellationToken)
+        public async Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, OrderBy orderBy, OrderDir orderDir, CancellationToken cancellationToken)
         {
             var req = _context.BookshelfBooks
                 .AsNoTracking()
@@ -53,15 +54,38 @@ namespace ReadTogether.Infrastructure.Implementations
 
             var count = await req.CountAsync(cancellationToken);
 
-            var books = await req
-                .OrderByDescending(bb => bb.AddedAt)
-                .Skip(pageSize * (pageNumber - 1))
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
+            IOrderedQueryable<BookshelfBook> books;
+            // Order the results as requested
+            switch (orderBy)
+            {
+                case OrderBy.Title:
+                    if (orderDir == OrderDir.Desc)
+                        books = req.OrderByDescending(bb => bb.Book.Title);
+                    else
+                        books = req.OrderBy(bb => bb.Book.Title);
+                    break;
+                case OrderBy.Year:
+                    if (orderDir == OrderDir.Desc)
+                        books = req.OrderByDescending(bb => bb.Book.FirstPublishedYear);
+                    else
+                        books = req.OrderBy(bb => bb.Book.FirstPublishedYear);
+                    break;
+                default:
+                    if (orderDir == OrderDir.Desc)
+                        books = req.OrderByDescending(bb => bb.AddedAt);
+                    else
+                        books = req.OrderBy(bb => bb.AddedAt);
+                    break;
+
+            }
+
+            var results = await books.Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
 
             var res = new PagedResponse<BookshelfBookDto>
             {
-                Results = books.Select(bb => new BookshelfBookDto
+                Results = results.Select(bb => new BookshelfBookDto
                 {
                     Id = bb.BookId,
                     Title = bb.Book.Title,
