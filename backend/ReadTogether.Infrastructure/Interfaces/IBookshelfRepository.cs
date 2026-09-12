@@ -25,7 +25,7 @@ namespace ReadTogether.Infrastructure.Interfaces
         /// <returns>The created <see cref="BookshelfBook"/> join entry.</returns>
         /// <exception cref="ReadTogether.Infrastructure.Exceptions.BookshelfBookConflictException">The book is already on the bookshelf.</exception>
         Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, BookMetadataDto metadata, CancellationToken cancellationToken);
-        Task<bool> RemoveBookFromBookshelf(int bookshelfId, string bookId, string userId, CancellationToken cancellationToken);
+        Task<bool> RemoveBooksFromBookshelf(int bookshelfId, string[] bookIds, string userId, CancellationToken cancellationToken);
         Task<bool> DeleteBookshelf(int bookshelfId, string userId, CancellationToken cancellationToken);
     }
 }

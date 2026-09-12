@@ -12,7 +12,7 @@ using ReadTogether.Application.Features.Bookshelves.CreateBookshelf;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelf;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelfBooks;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser;
-using ReadTogether.Application.Features.Bookshelves.RemoveBookFromBookshelf;
+using ReadTogether.Application.Features.Bookshelves.RemoveBooksFromBookshelf;
 using ReadTogether.Domain.DTOs;
 using Superpower.Model;
 
@@ -81,7 +81,7 @@ namespace ReadTogether.API.Controllers
         }
 
         [HttpDelete("{bookshelfId}")]
-        public async Task<IActionResult> DeleteBookshelf(int bookshelfId, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteBookshelves(int bookshelfId, CancellationToken cancellationToken)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -124,16 +124,17 @@ namespace ReadTogether.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("{bookshelfId}/books/{bookId}")]
-        public async Task<IActionResult> RemoveBookFromBookshelf([FromRoute] int bookshelfId, [FromRoute] string bookId, CancellationToken cancellationToken)
+        [HttpDelete("{bookshelfId}/books")]
+        public async Task<IActionResult> RemoveBooksFromBookshelf([FromRoute] int bookshelfId, [FromQuery] string bookIds, CancellationToken cancellationToken)
         {
+            var bookIdArray = bookIds.Split(",");
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
             {
                 return Unauthorized();
             }
 
-            var command = new RemoveBookFromBookshelfCommand(bookshelfId, bookId, userId, cancellationToken);
+            var command = new RemoveBooksFromBookshelfCommand(bookshelfId, bookIdArray, userId, cancellationToken);
             var result = await _mediator.Send(command);
             if (result)
             {

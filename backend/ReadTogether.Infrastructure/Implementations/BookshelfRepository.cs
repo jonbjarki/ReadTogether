@@ -182,9 +182,21 @@ namespace ReadTogether.Infrastructure.Implementations
             return false;
         }
 
+        public async Task<bool> RemoveBooksFromBookshelf(int bookshelfId, string[] bookIds, string userId, CancellationToken cancellationToken)
+        {
+            int deletedRows = await _context.BookshelfBooks
+            .Include(bb => bb.Bookshelf)
+            .Where(bb => bb.Bookshelf.Id == bookshelfId && bb.Bookshelf.UserId == userId)
+            .Where(bb => bookIds.Contains(bb.BookId))
+            .ExecuteDeleteAsync(cancellationToken);
+
+            Console.WriteLine("Deleted {0} rows", deletedRows);
+            return true;
+        }
+
         public async Task<bool> DeleteBookshelf(int bookshelfId, string userId, CancellationToken cancellationToken)
         {
-            var bookshelf = await _context.Bookshelves.FindAsync(bookshelfId, cancellationToken);
+            var bookshelf = await _context.Bookshelves.FindAsync([bookshelfId, cancellationToken], cancellationToken: cancellationToken);
             if (bookshelf is null)
             {
                 throw new NotFoundException("Bookshelf", bookshelfId.ToString());
