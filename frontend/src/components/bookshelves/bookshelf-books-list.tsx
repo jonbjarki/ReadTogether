@@ -22,6 +22,10 @@ export default function BookshelfBooksList({ params, booksPromise }: { params: B
         setIsSelectMode(x => !x);
     }
 
+    const handleDelete = () => {
+
+    }
+
 
     const res = use(booksPromise);
     const books = res.results;
@@ -31,7 +35,12 @@ export default function BookshelfBooksList({ params, booksPromise }: { params: B
     }
     return (
         <ul className="flex flex-col gap-6">
-            <Button variant={"outline"} className="px-2 py-1 w-fit" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
+            <div className="flex gap-2 w-fit min-w-14 self-end">
+                {Object.keys(selectedBooks).length > 0 && (
+                    <Button onClick={handleDelete} variant="destructive">Delete</Button>
+                )}
+                <Button variant={"outline"} className="w-fit min-w-14 self-end" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
+            </div>
             {books.map((book, i) => (
                 <BookshelfBook book={book} key={book.id} isSelectMode={isSelectMode} isSelected={!!selectedBooks[book.id]} handleSelected={handleSelected} />
             ))}

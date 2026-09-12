@@ -25,7 +25,7 @@ export default function BookshelfBook({ book, isSelectMode, isSelected, handleSe
     return (
         <li className="flex flex-row items-center gap-2">
             {isSelectMode && (
-                <Checkbox className="bg-accent border-foreground" defaultChecked={isSelected} onCheckedChange={(val) => handleSelected(!!val, book.id)} />
+                <Checkbox id={"select-" + book.id} className="bg-accent border-foreground" defaultChecked={isSelected} onCheckedChange={(val) => handleSelected(!!val, book.id)} />
             )}
             <Link href={"/books/" + book.id} className="flex flex-row gap-4 items-center justify-left">
                 <div className="relative w-20 min-w-20 h-34">
