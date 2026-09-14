@@ -8,6 +8,7 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
         [Fact]
         public async Task RemoveBookFromBookshelf_ReturnsTrueAndDeletesBook_WhenShelfIsOwnedByUser()
         {
+            // Arrange
             await using var context = CreateContext();
             var user = CreateUser();
             var bookshelf = CreateBookshelf();
@@ -16,9 +17,11 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             var entry = CreateBookshelfBook(bookshelf.Id);
             await SeedAsync(context, book, entry);
 
+            // Act
             var result = await new BookshelfRepository(context)
-                .RemoveBookFromBookshelf(bookshelf.Id, entry.BookId, user.Id, CancellationToken.None);
+                .RemoveBooksFromBookshelf(bookshelf.Id, [entry.BookId], user.Id, CancellationToken.None);
 
+            // Assert
             Assert.True(result);
 
             await using var verificationContext = CreateContext();
@@ -26,8 +29,40 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
         }
 
         [Fact]
+        public async Task RemoveBookFromBookshelf_ReturnsTrueAndDeletesBooks_WhenMultipleBooksProvided()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var user = CreateUser();
+            var bookshelf = CreateBookshelf();
+            await SeedAsync(context, user, bookshelf);
+            var book1 = CreateBook();
+            var book2 = CreateBook("book-2");
+            var book3 = CreateBook("book-3");
+            var entry1 = CreateBookshelfBook(bookshelf.Id, book1.Id);
+            var entry2 = CreateBookshelfBook(bookshelf.Id, book2.Id);
+            var entry3 = CreateBookshelfBook(bookshelf.Id, book3.Id);
+
+            await SeedAsync(context, book1, book2, book3, entry1, entry2, entry3);
+
+            // Act
+            var result = await new BookshelfRepository(context)
+                .RemoveBooksFromBookshelf(bookshelf.Id, [book1.Id, book2.Id, book3.Id], user.Id, CancellationToken.None);
+
+            // Assert
+            Assert.True(result);
+
+            await using var verificationContext = CreateContext();
+            Assert.Null(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book1.Id));
+            Assert.Null(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book2.Id));
+            Assert.Null(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book3.Id));
+
+        }
+
+        [Fact]
         public async Task RemoveBookFromBookshelf_ThrowsAccessDenied_WhenShelfIsNotOwnedByUser()
         {
+            // Arrange
             await using var context = CreateContext();
             var owner = CreateUser();
             var otherUser = CreateUser(OtherUserId, "John", "john@example.test");
@@ -37,20 +72,24 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             var entry = CreateBookshelfBook(bookshelf.Id);
             await SeedAsync(context, book, entry);
 
+            // Act & Assert
             await Assert.ThrowsAsync<AccessDeniedException>(() => new BookshelfRepository(context)
-                .RemoveBookFromBookshelf(bookshelf.Id, entry.BookId, otherUser.Id, CancellationToken.None));
+                .RemoveBooksFromBookshelf(bookshelf.Id, [entry.BookId], otherUser.Id, CancellationToken.None));
 
             await using var verificationContext = CreateContext();
             Assert.NotNull(await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, entry.BookId));
         }
 
         [Fact]
-        public async Task RemoveBookFromBookshelf_ThrowsNotFound_WhenBookDoesNotExist()
+        public async Task RemoveBookFromBookshelf_ThrowsNotFound_WhenShelfDoesNotExist()
         {
+            // Arrange
             await using var context = CreateContext();
 
+            // Act & Assert
             await Assert.ThrowsAsync<NotFoundException>(() => new BookshelfRepository(context)
-                .RemoveBookFromBookshelf(999, "missing-book", OwnerId, CancellationToken.None));
+                .RemoveBooksFromBookshelf(0, ["non-existent-book"], "non-existent-user", CancellationToken.None));
+
         }
     }
 }

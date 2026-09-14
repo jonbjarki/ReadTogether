@@ -45,7 +45,7 @@ namespace ReadTogether.Infrastructure.Implementations
                 .FirstOrDefaultAsync(b => b.Id == id, cancellationToken);
         }
 
-        public async Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, OrderBy orderBy, OrderDir orderDir, CancellationToken cancellationToken)
+        public async Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, CancellationToken cancellationToken, OrderBy orderBy = OrderBy.DateAdded, OrderDir orderDir = OrderDir.Desc)
         {
             var req = _context.BookshelfBooks
                 .AsNoTracking()
@@ -158,35 +158,15 @@ namespace ReadTogether.Infrastructure.Implementations
             }
         }
 
-        public async Task<bool> RemoveBookFromBookshelf(int bookshelfId, string bookId, string userId, CancellationToken cancellationToken)
-        {
-            var book = await _context.BookshelfBooks
-            .Include(bb => bb.Bookshelf)
-            .FirstOrDefaultAsync(bb => bb.BookshelfId == bookshelfId && bb.BookId == bookId, cancellationToken);
-
-            if (book is not null && book.Bookshelf.UserId == userId)
-            {
-                _context.BookshelfBooks.Remove(book);
-                await _context.SaveChangesAsync(cancellationToken);
-                return true;
-            }
-            else if (book is not null && book.Bookshelf.UserId != userId)
-            {
-                throw new AccessDeniedException("You are not allowed to access this resource");
-            }
-            else if (book is null)
-            {
-                throw new NotFoundException("Bookshelf Book", $"{bookshelfId}/{bookId}");
-            }
-
-            return false;
-        }
-
         public async Task<bool> RemoveBooksFromBookshelf(int bookshelfId, string[] bookIds, string userId, CancellationToken cancellationToken)
         {
+            var shelf = await _context.Bookshelves.FirstOrDefaultAsync(b => b.Id == bookshelfId);
+            if (shelf is null) throw new NotFoundException("Bookshelf", bookshelfId.ToString());
+            if (shelf.UserId != userId) throw new AccessDeniedException("You are not allowed to modify this bookshelf!");
+
             int deletedRows = await _context.BookshelfBooks
             .Include(bb => bb.Bookshelf)
-            .Where(bb => bb.Bookshelf.Id == bookshelfId && bb.Bookshelf.UserId == userId)
+            .Where(bb => bb.Bookshelf.Id == bookshelfId)
             .Where(bb => bookIds.Contains(bb.BookId))
             .ExecuteDeleteAsync(cancellationToken);
 

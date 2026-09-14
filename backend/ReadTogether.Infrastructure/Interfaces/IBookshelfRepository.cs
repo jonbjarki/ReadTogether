@@ -13,7 +13,7 @@ namespace ReadTogether.Infrastructure.Interfaces
     {
         Task<Bookshelf> CreateBookshelf(string name, string userId, CancellationToken cancellationToken, bool isDefaultShelf = false);
         Task<Bookshelf?> GetBookshelfById(int id, CancellationToken cancellationToken);
-        Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, OrderBy orderBy, OrderDir orderDir, CancellationToken cancellationToken);
+        Task<PagedResponse<BookshelfBookDto>> GetBookshelfBooks(int bookshelfId, int pageNumber, int pageSize, CancellationToken cancellationToken, OrderBy orderBy = OrderBy.DateAdded, OrderDir orderDir = OrderDir.Desc);
         Task<List<Bookshelf>> GetBookshelvesByUserId(string userId, CancellationToken cancellationToken);
         /// <summary>
         /// Adds a book to a bookshelf, creating the shared local <see cref="Book"/> copy from

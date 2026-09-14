@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens.Experimental;
+using ReadTogether.Domain.Entities;
 using ReadTogether.Infrastructure.Implementations;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,13 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             await SeedAsync(context, book, entry);
 
             // Act
-            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, 1, 10, CancellationToken.None);
+            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, 1, 10, cancellationToken: CancellationToken.None);
 
             // Assert
             Assert.NotNull(books);
             Assert.Single(books.Results);
             Assert.Equal(books.Results.Single().Id, entry.BookId);
-            Assert.Equal(1, books.NumPages);
+            Assert.Equal(1, books.Total);
         }
 
         [Fact]
@@ -48,26 +49,27 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             }
 
             // Act
-            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, 1, 10, CancellationToken.None);
+            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, 1, 10, cancellationToken: CancellationToken.None);
 
             // Assert
             Assert.NotNull(books);
             Assert.Equal(5, books.Results.Count());
-            Assert.Equal(1, books.NumPages);
+            Assert.Equal(5, books.Total);
         }
 
         [Theory]
-        [InlineData(1, 10, 2)]
-        [InlineData(2, 10, 2)]
-        [InlineData(3, 5, 3)]
-        public async Task GetBookshelfBooks_ReturnsCorrectPaging(int pageNumber, int pageSize, int expectedNumPages)
+        [InlineData(1, 10)]
+        [InlineData(2, 10)]
+        [InlineData(3, 5)]
+        public async Task GetBookshelfBooks_ReturnsCorrectPaging(int pageNumber, int pageSize)
         {
             // Arrange
+            const int NUM_BOOKS = 15;
             var bookshelf = CreateBookshelf();
             var user = CreateUser();
             var context = CreateContext();
             await SeedAsync(context, user, bookshelf);
-            for (int i = 1; i <= 15; i++)
+            for (int i = 1; i <= NUM_BOOKS; i++)
             {
                 var book = CreateBook($"Book {i}");
                 var entry = CreateBookshelfBook(bookshelf.Id, $"Book {i}");
@@ -75,12 +77,12 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             }
 
             // Act
-            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, pageNumber, pageSize, CancellationToken.None);
+            var books = await new BookshelfRepository(context).GetBookshelfBooks(bookshelf.Id, pageNumber, pageSize, cancellationToken: CancellationToken.None);
 
             // Assert
             Assert.NotNull(books);
             Assert.NotEmpty(books.Results);
-            Assert.Equal(expectedNumPages, books.NumPages);
+            Assert.Equal(NUM_BOOKS, books.Total);
             Assert.Equal(pageNumber, books.Page);
             Assert.Equal(pageSize, books.PageSize);
         }
