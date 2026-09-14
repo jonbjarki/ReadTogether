@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{base_url}}/auth/google"
+method: POST
+headers:
+  - key: Authorization
+    value: ""
+    disabled: true
+body:
+  type: json
+  content: "{\r
+
+    \    \"idToken\": \"LNMsimp6xSQ5oNZJVV2Da4QG364t_5Gyh7CaYkMLuzk7Eictz3esXN_e9dYg4E8FkqHAwBedD4liWIIxXcYq4a1Tul_aZEDEBv7FhnsvLf0vxvXe_piU-Vw\"\r
+
+    }"
+settings: {}
+order: 1000

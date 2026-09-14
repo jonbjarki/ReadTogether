@@ -1,5 +1,0 @@
-$kind: http-request
-name: Search Google Books
-url: ""
-method: GET
-order: 1773236078869

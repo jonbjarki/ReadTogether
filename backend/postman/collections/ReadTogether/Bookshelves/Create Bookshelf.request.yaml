@@ -1,0 +1,5 @@
+$kind: http-request
+url: "{{base_url}}/bookshelves"
+method: POST
+settings: {}
+order: 2000

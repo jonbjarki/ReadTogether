@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Moq.Contrib.HttpClient;
 using ReadTogether.Domain.Common;
+using ReadTogether.Infrastructure.Dtos;
 using ReadTogether.Infrastructure.Exceptions;
 using ReadTogether.Infrastructure.Implementations;
 using ReadTogether.Infrastructure.Responses;
@@ -33,7 +34,7 @@ namespace ReadTogether.Tests.Infrastructure.GoogleBooks
             var result = await api.Search("test", CancellationToken.None, null, null, 1, 10);
 
             // Assert
-            Assert.IsType<PagedResponse<BookSearchItemDto>>(result);
+            Assert.IsType<PagedBookSearchDto>(result);
             Assert.Equal(2, result.Results.Count());
             Assert.Equal(1, result.Page);
             Assert.Equal(10, result.PageSize);
@@ -64,7 +65,7 @@ namespace ReadTogether.Tests.Infrastructure.GoogleBooks
             var result = await api.Search("test", CancellationToken.None, null, null, 1, 10);
 
             // Assert
-            Assert.IsType<PagedResponse<BookSearchItemDto>>(result);
+            Assert.IsType<PagedBookSearchDto>(result);
             Assert.Equal(1, result.Page);
             Assert.Equal(10, result.PageSize);
             Assert.Empty(result.Results);

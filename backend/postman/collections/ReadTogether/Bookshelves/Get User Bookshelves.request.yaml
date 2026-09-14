@@ -1,0 +1,5 @@
+$kind: http-request
+url: "{{base_url}}/bookshelves/user/nonni"
+method: GET
+settings: {}
+order: 3000

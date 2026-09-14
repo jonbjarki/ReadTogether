@@ -1,5 +1,35 @@
-import { authenticatedFetch } from "@/lib/authenticated-fetch";
-import { bookshelfListResponseSchema } from "@/zod/books/bookshelf-schemas";
+"use server";
+
+import { authenticatedFetch, NotAuthenticatedError } from "@/lib/authenticated-fetch";
+import { BookItem } from "@/types/books/books-search-response";
+import { bookshelfDetailsSchema, bookshelfListResponseSchema } from "@/zod/books/bookshelf-schemas";
+import { updateTag } from "next/cache";
+import { notFound } from "next/navigation";
+
+
+export async function fetchBookshelf(id: number) {
+    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${id}`);
+    if (!res.ok) {
+        if (res.status == 404) {
+            notFound();
+        }
+        throw new Error("Error occurred when fetching the bookshelf, please try again later");
+    }
+
+    console.log("Fetching bookshelf");
+    const unvalidated = await res.json();
+    const validation = bookshelfDetailsSchema.safeParse(unvalidated);
+    console.log("Unvalidated:", unvalidated);
+
+    if (!validation.success) {
+        console.error("Validation error in fetch bookshelf {0}", validation.error);
+        throw new Error("Something went wrong when validating bookshelf response");
+    }
+
+    const data = validation.data;
+    console.log("Data:", data);
+    return data;
+}
 
 export async function fetchUserBookshelvesAction(username: string) {
     const res = await authenticatedFetch(process.env.API_URL + `bookshelves/user/${username}`);
@@ -19,8 +49,11 @@ export async function fetchUserBookshelvesAction(username: string) {
 
 }
 
-export async function fetchOwnBookshelvesAction(username: string) {
-    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/user/${username}`, {
+export async function fetchOwnBookshelvesAction(username: string, bookId?: string) {
+    // If bookId is provided, include it as a query parameter to check if the book is already in the bookshelf
+    const path = process.env.API_URL + `bookshelves/user/${username}${bookId ? `?bookId=${bookId}` : ""}`;
+
+    const res = await authenticatedFetch(path, {
         cache: "force-cache",
         next: {
             revalidate: 120,
@@ -42,4 +75,47 @@ export async function fetchOwnBookshelvesAction(username: string) {
     }
     console.log("Fetched user's bookshelves:", validation.data);
     return validation.data;
+
+}
+
+export async function addToBookshelfAction(book: BookItem, bookshelfId: number) {
+
+    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${bookshelfId}/books/${book.id}`, {
+        method: "POST",
+        body: JSON.stringify({
+            title: book.title,
+            coverImageUrl: book.coverImageUrl,
+            description: book.description,
+            authorName: book.authorName,
+            firstPublishedYear: book.firstPublishedYear
+        }),
+        headers: new Headers({ "Content-Type": "application/json" })
+    });
+    if (!res.ok) {
+        console.error("Error occured", await res.text());
+        throw new Error("Error occurred when adding book to bookshelf, please try again later");
+    }
+    console.log("Response:", res);
+    console.log("Successfully added book to bookshelf");
+    updateTag("user-bookshelves");
+
+}
+
+export async function removeFromBookshelfAction(bookshelfId: number, bookIds: BookItem["id"][]) {
+    const url = new URL(process.env.API_URL + `bookshelves/${bookshelfId}/books/`);
+    url.searchParams.append("bookIds", bookIds.join(","));
+
+    const res = await authenticatedFetch(url, {
+        method: "DELETE"
+    });
+
+    if (!res.ok) {
+        console.error("Error occured", await res.text());
+        throw new Error("Error occurred when removing book from bookshelf, please try again later");
+    }
+
+    console.log("Remove Response:", res);
+    console.log("Removed book from shelf");
+    updateTag("user-bookshelves");
+
 }

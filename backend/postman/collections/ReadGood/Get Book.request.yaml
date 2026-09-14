@@ -1,5 +1,0 @@
-$kind: http-request
-url: "{{base_url}}/books/works/OL21385222W"
-method: GET
-examples: ./.resources/Get Book.resources/examples
-order: 2000

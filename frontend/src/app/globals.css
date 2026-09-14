@@ -83,13 +83,7 @@
   --radius-4xl: calc(var(--radius) + 16px);
   --font-heading: var(--font-sans);
 }
-/* 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --primary: #005f73;
-  }
-}
-*/
+
 
 .dark {
   --background: oklch(19.125% 0.00002 271.152);
@@ -98,7 +92,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: #78290F;
+  --primary: #ff4000;
   --primary-foreground: oklch(0.205 0 0);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
@@ -129,9 +123,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
   }

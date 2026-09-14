@@ -1,0 +1,22 @@
+$kind: http-request
+description: |-
+  Retrieves detailed information about a single book by its ID.
+
+  ## Path Parameters
+  - **id** (required): The unique identifier of the book
+
+  ## Response
+  Returns a BookDetailsDto object with:
+  - id: string
+  - title: string
+  - description: string (optional)
+  - firstPublishedYear: number (optional)
+  - authorName: string (optional)
+  - coverImageUrl: string (optional)
+url: "{{base_url}}/api/books/{{book_id}}"
+method: GET
+pathVariables:
+  - key: book_id
+    value: "{{book_id}}"
+    description: The unique identifier of the book to retrieve
+order: 4124255390928549

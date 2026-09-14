@@ -1,6 +1,7 @@
 using Moq;
 using ReadTogether.Application.Features.Books.SearchBooks;
 using ReadTogether.Domain.Common;
+using ReadTogether.Infrastructure.Dtos;
 using ReadTogether.Infrastructure.Interfaces;
 using ReadTogether.Infrastructure.Responses;
 
@@ -13,7 +14,7 @@ namespace ReadTogether.Tests.Features.Books
         {
             // Arrange
             var apiMock = new Mock<IGoogleBooksAPI>();
-            var response = new PagedResponse<BookSearchItemDto>
+            var response = new PagedBookSearchDto
             {
                 Page = 1,
                 PageSize = 10,

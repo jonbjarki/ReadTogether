@@ -1,6 +1,6 @@
 name: Development
+color: null
 values:
   - key: base_url
     value: ""
     enabled: true
-color: null

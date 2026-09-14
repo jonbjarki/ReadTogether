@@ -10,7 +10,11 @@ using ReadTogether.API.InputModels.Bookshelves;
 using ReadTogether.Application.Features.Bookshelves.AddBookToBookshelf;
 using ReadTogether.Application.Features.Bookshelves.CreateBookshelf;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelf;
+using ReadTogether.Application.Features.Bookshelves.GetBookshelfBooks;
 using ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser;
+using ReadTogether.Application.Features.Bookshelves.RemoveBooksFromBookshelf;
+using ReadTogether.Domain.DTOs;
+using Superpower.Model;
 
 namespace ReadTogether.API.Controllers
 {
@@ -40,10 +44,18 @@ namespace ReadTogether.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("user/{username}")]
-        public async Task<IActionResult> GetBookshelvesByUser(string username)
+        [HttpGet("{id}/books")]
+        public async Task<IActionResult> GetBookshelfBooks(GetBookshelfBooksInputModel inputModel)
         {
-            var query = new GetBookshelvesByUserQuery(username);
+            var query = new GetBookshelfBooksQuery(inputModel.Id, inputModel.Page, inputModel.PageSize, inputModel.OrderBy, inputModel.OrderDir);
+            var result = await _mediator.Send(query, HttpContext.RequestAborted);
+            return Ok(result.Data);
+        }
+
+        [HttpGet("user/{username}")]
+        public async Task<IActionResult> GetBookshelvesByUser(string username, [FromQuery] string? bookId = null)
+        {
+            var query = new GetBookshelvesByUserQuery(username, bookId);
             var result = await _mediator.Send(query, HttpContext.RequestAborted);
 
             if (result is null)
@@ -57,29 +69,73 @@ namespace ReadTogether.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBookshelf([FromBody] CreateBookshelfInputModel inputModel)
         {
-            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (id == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
             {
                 return Unauthorized();
             }
 
-            var command = new CreateBookshelfCommand(inputModel.Name, id);
+            var command = new CreateBookshelfCommand(inputModel.Name, userId);
             var result = await _mediator.Send(command);
             return Created($"/api/bookshelves/{result.Id}", result);
         }
 
-        [HttpPost("{bookshelfId}/books/{bookId}")]
-        public async Task<IActionResult> AddBookToBookshelf(int bookshelfId, string bookId, [FromBody] AddBookToBookshelfInputModel inputModel)
+        [HttpDelete("{bookshelfId}")]
+        public async Task<IActionResult> DeleteBookshelves(int bookshelfId, CancellationToken cancellationToken)
         {
-            var id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (id == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
             {
                 return Unauthorized();
             }
 
-            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, inputModel.Title, inputModel.ThumbnailUrl, id);
+            var command = new DeleteBookshelfCommand(bookshelfId, userId, cancellationToken);
+            var result = await _mediator.Send(command);
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                throw new Exception("Unexpected error occurred when deleting bookshelf");
+            }
+        }
+
+
+        [HttpPost("{bookshelfId}/books/{bookId}")]
+        public async Task<IActionResult> AddBookToBookshelf([FromRoute] int bookshelfId, [FromRoute] string bookId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, userId);
             var result = await _mediator.Send(command);
             return Ok(result);
+        }
+
+        [HttpDelete("{bookshelfId}/books")]
+        public async Task<IActionResult> RemoveBooksFromBookshelf([FromRoute] int bookshelfId, [FromQuery] string bookIds, CancellationToken cancellationToken)
+        {
+            var bookIdArray = bookIds.Split(",");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var command = new RemoveBooksFromBookshelfCommand(bookshelfId, bookIdArray, userId, cancellationToken);
+            var result = await _mediator.Send(command);
+            if (result)
+            {
+                return NoContent();
+            }
+            else
+            {
+                throw new Exception("Unexpected error occured when removing book from bookshelf");
+            }
         }
     }
 }

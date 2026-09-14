@@ -25,6 +25,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             // Logged in users are authenticated, otherwise redirect to login page
             const isLoggedIn = !!auth;
             if (AUTHORIZED_PATHS.some(path => request.nextUrl.pathname.startsWith(path))) {
+                console.log(`FIRED with path: ${AUTHORIZED_PATHS.find(path => request.nextUrl.pathname.startsWith(path))}`);
+                console.log(request.nextUrl.pathname);
                 return isLoggedIn;
             }
             return true;

@@ -1,12 +1,14 @@
 import { auth, signOut, signIn } from "@/auth";
-import SearchBar from "@/components/search-bar";
-import { StrictMode } from "react";
+import SearchBar from "@/components/search/search-bar";
+import { StrictMode, Suspense } from "react";
 
 export default async function HomePage() {
   return (
     <StrictMode>
       <main>
-        <SearchBar />
+        <Suspense>
+          <SearchBar />
+        </Suspense>
       </main>
     </StrictMode>
   )

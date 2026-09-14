@@ -26,9 +26,7 @@ namespace ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser
                 Console.WriteLine($"User not found: {request.UserName}");
                 return null;
             }
-            Console.WriteLine($"User found: {user.UserName} (ID: {user.Id})");
             var bookshelves = await _bookshelfRepository.GetBookshelvesByUserId(user.Id, cancellationToken);
-
             return bookshelves
                 .Select(bookshelf => new GetBookshelvesByUserDto
                 {
@@ -37,7 +35,8 @@ namespace ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser
                     UserId = bookshelf.UserId,
                     Description = bookshelf.Description,
                     IsDefaultShelf = bookshelf.IsDefaultShelf,
-                    CreatedAt = bookshelf.CreatedAt
+                    CreatedAt = bookshelf.CreatedAt,
+                    IsBookInShelf = request.BookId is not null ? bookshelf.BookshelfBooks.Any(b => b.BookId == request.BookId) : null
                 })
                 .ToList();
         }

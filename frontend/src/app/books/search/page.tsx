@@ -1,7 +1,7 @@
 "use server"
 
 import BooksList from "@/components/books-list/books-list";
-import SearchBar from "@/components/search-bar";
+import SearchBar from "@/components/search/search-bar";
 import { BooksSearchResponse } from "@/types/books/books-search-response";
 import { SearchPageParamsType } from "@/types/search-page-types";
 import { booksSearchResponseSchema } from "@/zod/books/books-schemas";

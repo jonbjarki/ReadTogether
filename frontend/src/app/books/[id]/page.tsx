@@ -8,9 +8,13 @@ import { Button } from "@/components/ui/button";
 import { fetchUserBookshelvesAction } from "@/actions/bookshelf-actions";
 import { auth } from "@/auth";
 import AddToBookshelfButton from "@/components/books-list/add-to-bookshelf-button";
+import { Suspense } from "react";
+import Link from "next/link";
+import { signIn } from "@/auth";
+import SignInButton from "@/components/auth/sign-in-button";
 
 async function fetchBookAction(bookId: string): Promise<BookItem> {
-    const res = await fetch(process.env.API_URL + "books/" + bookId, { next: { revalidate: 300 } }); // cache for 5 minutes
+    const res = await fetch(process.env.API_URL + "books/" + bookId, { next: { revalidate: 300 }, cache: "force-cache" }); // cache for 5 minutes
 
     if (!res.ok) {
         if (res.status === 404) {
@@ -24,7 +28,13 @@ async function fetchBookAction(bookId: string): Promise<BookItem> {
     return await res.json() satisfies BookItem;
 }
 
+async function signInAction(id: string) {
+    "use server"
+    await signIn(undefined, { redirectTo: `/books/${id}` });
+}
+
 export default async function BookPage({ params }: { params: Promise<{ id: string }> }) {
+    const session = await auth();
     const id = (await params).id;
 
     const book = await fetchBookAction(id);
@@ -51,13 +61,21 @@ export default async function BookPage({ params }: { params: Promise<{ id: strin
                     <div className="space-y-1 text-lg">
                         <p>{authorAndYear(book.authorName, book.firstPublishedYear)}</p>
                     </div>
-                    <AddToBookshelfButton bookId={book.id} />
+
+                    {!!session?.user.name ?
+                        (<Suspense fallback={<Button variant="outline">Add to bookshelf</Button>}>
+                            <AddToBookshelfButton book={book} userName={session.user.name} />
+                        </Suspense>)
+                        :
+                        (<SignInButton redirectTo={`/books/${id}`} text="Add to bookshelf" />)
+                    }
+
                 </div>
             </div>
             <p className="leading-7 text-pretty">
                 {description}
             </p>
-        </main>
+        </main >
     );
 }
 

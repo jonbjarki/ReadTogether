@@ -1,9 +1,0 @@
-$kind: collection
-name: Books
-description: |-
-  Endpoints for searching and retrieving book information.
-  
-  ## Available Operations
-  - Get a single book by ID
-  - Search books with filters
-order: 1000

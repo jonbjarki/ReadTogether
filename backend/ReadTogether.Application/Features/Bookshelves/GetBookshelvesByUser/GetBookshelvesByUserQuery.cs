@@ -2,5 +2,5 @@ using MediatR;
 
 namespace ReadTogether.Application.Features.Bookshelves.GetBookshelvesByUser
 {
-    public record GetBookshelvesByUserQuery(string UserName) : IRequest<List<GetBookshelvesByUserDto>?>;
+    public record GetBookshelvesByUserQuery(string UserName, string? BookId = null) : IRequest<List<GetBookshelvesByUserDto>?>;
 }

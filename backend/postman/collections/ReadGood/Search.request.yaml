@@ -1,8 +1,0 @@
-$kind: http-request
-url: "{{base_url}}/books/search?title=harry potter&page=2&pageSize=5"
-method: GET
-queryParams:
-  title: harry potter
-  page: "2"
-  pageSize: "5"
-order: 1000

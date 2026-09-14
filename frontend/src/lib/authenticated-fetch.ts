@@ -4,10 +4,15 @@ import { decode, getToken } from "next-auth/jwt";
 import { redirect, RedirectType } from 'next/navigation'
 import { cookies } from "next/headers";
 
-export class AuthenticationError extends Error {
-    constructor(message: string) {
-        super(message);
-        this.name = "AuthenticationError";
+export class NotAuthenticatedError extends Error {
+    constructor() {
+        super();
+        this.name = 'ValidationError';
+        Object.setPrototypeOf(this, NotAuthenticatedError.prototype);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, NotAuthenticatedError);
+        }
     }
 }
 
@@ -15,8 +20,7 @@ async function getDecodedToken() {
     // Retrieve the encoded authjs session token from cookies
     const cookieStore = await cookies();
 
-    // The default cookie name for https-only session tokens.
-    const cookieName = "__Secure-authjs.session-token"
+    const cookieName = process.env.NODE_ENV === "production" ? "__Secure-next-auth.session-token" : "authjs.session-token";
     const sessionCookie = cookieStore.get(cookieName)?.value;
 
     if (!sessionCookie) return null;
@@ -35,6 +39,7 @@ async function getDecodedToken() {
     return decodedToken.accessToken;
 }
 
+
 /**
 Utility function for making authenticated requests to the backend API.
 It retrieves the JWT from the encoded session cookie and includes it in the Authorization header of the request. 
@@ -47,6 +52,7 @@ export async function authenticatedFetch(input: URL | RequestInfo, init?: Reques
         headers.set("Authorization", `Bearer ${accessToken}`);
     }
 
+    console.log("Making authenticated request to: " + input + " with configuration ", init);
     // Make the authenticated request to the backend API, including the JWT in the Authorization header if available
     const res = await fetch(input, {
         ...init,

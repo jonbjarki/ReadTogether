@@ -1,40 +1,35 @@
-import { authenticatedFetch } from "@/lib/authenticated-fetch";
-import { bookshelfDetailsSchema } from "@/zod/books/bookshelf-schemas";
+import { fetchBookshelf } from "@/actions/bookshelf-actions";
+import { fetchBookshelfBooks } from "@/actions/bookshelf-queries";
+import { auth } from "@/auth";
+import Bookshelf from "@/components/bookshelves/bookshelf";
+import { bookshelfBooksPagingParams } from "@/zod/books/bookshelf-schemas";
+import { notFound } from "next/navigation";
 
-async function fetchBookshelf(id: number) {
-    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${id}`);
-
-    console.log("Fetching bookshelf");
-    const unvalidated = await res.json();
-    const validation = bookshelfDetailsSchema.safeParse(unvalidated);
-    console.log("Unvalidated:", unvalidated);
-
-    if (!validation.success) {
-        console.error("Validation error in fetch bookshelf", validation.error);
-        throw new Error("Something went wrong when validating bookshelf response");
-    }
-
-    const data = validation.data;
-    console.log("Data:", data);
-    return data;
-}
 
 export default async function BookshelfPage(props: PageProps<"/bookshelves/[id]">) {
     const { id } = await props.params;
+    const params = await props.searchParams;
+    const session = await auth();
     const bookshelfId = parseInt(id);
+    if (Number.isNaN(bookshelfId)) {
+        notFound();
+    }
+
+    const parsedParams = await bookshelfBooksPagingParams.safeParseAsync(params);
+    if (!parsedParams.success) {
+        throw new Error("Invalid query parameters provided");
+    }
+    const { page, pageSize, orderBy, orderDir } = parsedParams.data;
+
     const bookshelf = await fetchBookshelf(bookshelfId);
+    const isOwner = bookshelf.userId == session?.user.id;
+    console.log("ISOWNER:", isOwner);
+    console.log("shelf user id", bookshelf.userId);
+    console.log("user id", session?.user.id);
+    // Not awaited so it can be streamed in with use() client-side
+    const booksPromise = fetchBookshelfBooks(bookshelfId, { page, pageSize, orderBy, orderDir });
+
     return (
-        <main>
-            <h2>{bookshelf.name}</h2>
-            <ul>
-                {bookshelf.books.map(book => (
-                    <li>
-                        {book.title}
-                    </li>
-                ))}
-            </ul>
-
-        </main>
-
+        <Bookshelf bookshelf={bookshelf} params={parsedParams.data} booksPromise={booksPromise} isOwner={isOwner} />
     )
 }

@@ -1,0 +1,45 @@
+$kind: http-request
+description: |-
+  Search for books by title and optional filters.
+
+  ## Query Parameters
+  - **title** (required): The book title to search for
+  - **author** (optional): Filter by author name
+  - **subject** (optional): Filter by subject/category
+  - **page** (optional, default: 1): Page number for pagination
+  - **pageSize** (optional, default: 10, max: 40): Number of results per page
+
+  ## Response
+  Returns a PagedResponse containing:
+  - results: array of BookSearchItemDto
+    - id: string
+    - title: string
+    - author: string (optional)
+    - firstPublished: string (optional)
+    - coverImageUrl: string (optional)
+  - page: number
+  - pageSize: number
+  - total: number
+url: "{{base_url}}/api/books/search"
+method: GET
+queryParams:
+  - key: title
+    value: The Great Gatsby
+    description: "Required: The book title to search for"
+  - key: author
+    value: ""
+    disabled: true
+    description: "Optional: Filter by author name"
+  - key: subject
+    value: ""
+    disabled: true
+    description: "Optional: Filter by subject/category"
+  - key: page
+    value: "1"
+    disabled: true
+    description: "Optional: Page number (default: 1)"
+  - key: pageSize
+    value: "10"
+    disabled: true
+    description: "Optional: Results per page (default: 10, max: 40)"
+order: 2132483373007900

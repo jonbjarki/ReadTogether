@@ -43,6 +43,20 @@ namespace ReadTogether.API.Errors
                 await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
                 return true;
             }
+            if (exception is AccessDeniedException accessDeniedException)
+            {
+                _logger.LogInformation("Handling AccessDeniedException {Exception}", accessDeniedException);
+                var problem = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Access Denied",
+                    Type = "https://httpstatuses.com/409",
+                    Detail = accessDeniedException.Message
+                };
+                httpContext.Response.StatusCode = problem.Status.Value;
+                await httpContext.Response.WriteAsJsonAsync(problem, cancellationToken);
+                return true;
+            }
             else
             {
                 _logger.LogError(exception, "An unhandled exception occurred.");

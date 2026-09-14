@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using ReadTogether.Domain.Common;
 using ReadTogether.Domain.DTOs;
+using ReadTogether.Infrastructure.Dtos;
 using ReadTogether.Infrastructure.Exceptions;
 using ReadTogether.Infrastructure.Interfaces;
 using ReadTogether.Infrastructure.Responses;
@@ -132,7 +133,7 @@ namespace ReadTogether.Infrastructure.Implementations
             return $"volumes?q={escapedString}{authorQuery}{subjectQuery}&startIndex={startIndex}&maxResults={pageSize + 1}"; // We request pageSize + 1 items to determine if there is a next page
         }
 
-        public async Task<PagedResponse<BookSearchItemDto>> Search(string title, CancellationToken cancellationToken, string? author = null, string? subject = null, int page = 1, int pageSize = 10)
+        public async Task<PagedBookSearchDto> Search(string title, CancellationToken cancellationToken, string? author = null, string? subject = null, int page = 1, int pageSize = 10)
         {
             var query = GetSearchQueryUrl(title, author, subject, page, pageSize);
             _logger.LogInformation("Searching for books with url: {Url}", httpClient.BaseAddress + query);
@@ -170,7 +171,7 @@ namespace ReadTogether.Infrastructure.Implementations
 
             if (response.Items is null || response.Items.Length == 0) // No results found, return empty paged response
             {
-                return new PagedResponse<BookSearchItemDto>
+                return new PagedBookSearchDto
                 {
                     Page = page,
                     PageSize = pageSize,
@@ -191,7 +192,7 @@ namespace ReadTogether.Infrastructure.Implementations
 
             }).ToList();
 
-            return new PagedResponse<BookSearchItemDto>
+            return new PagedBookSearchDto
             {
                 Page = page,
                 PageSize = pageSize,

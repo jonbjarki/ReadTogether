@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/bookshelves/2/books?bookIds=DCmuEQAAQBAJ,Jcb-swEACAAJ"
+method: DELETE
+queryParams:
+  - key: bookIds
+    value: DCmuEQAAQBAJ,Jcb-swEACAAJ
+    disabled: false
+    description: ""
+    $type: string
+order: 5000

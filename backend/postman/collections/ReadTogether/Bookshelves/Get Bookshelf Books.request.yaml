@@ -1,0 +1,5 @@
+$kind: http-request
+name: Get Bookshelf Books
+url: "{{base_url}}/bookshelves/4/books"
+method: GET
+order: 7000

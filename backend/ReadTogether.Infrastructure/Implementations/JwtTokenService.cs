@@ -49,6 +49,7 @@ namespace ReadTogether.Infrastructure.Implementations
 
             // Creates and signs the token
             var token = handler.CreateToken(descriptor);
+            Console.WriteLine($"Generated JWT Token {token}");
             return new JwtTokenDto
             {
                 Token = token,
