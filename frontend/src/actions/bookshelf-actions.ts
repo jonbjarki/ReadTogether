@@ -101,8 +101,11 @@ export async function addToBookshelfAction(book: BookItem, bookshelfId: number) 
 
 }
 
-export async function removeFromBookshelfAction(book: BookItem, bookshelfId: number) {
-    const res = await authenticatedFetch(process.env.API_URL + `bookshelves/${bookshelfId}/books/${book.id}`, {
+export async function removeFromBookshelfAction(bookshelfId: number, bookIds: BookItem["id"][]) {
+    const url = new URL(process.env.API_URL + `bookshelves/${bookshelfId}/books/`);
+    url.searchParams.append("bookIds", bookIds.join(","));
+
+    const res = await authenticatedFetch(url, {
         method: "DELETE"
     });
 

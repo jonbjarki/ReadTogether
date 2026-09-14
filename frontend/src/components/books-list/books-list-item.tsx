@@ -25,13 +25,13 @@ export default function BooksListItem({ item }: { item: BookSearchItem }) {
 
     return (
         <li>
-            <Link href={"/books/" + item.id} className="flex flex-row gap-4 items-center justify-left">
-                <div className="relative w-32 h-48">
+            <Link href={"/books/" + item.id} className="flex flex-row gap-6 items-center justify-left">
+                <div className="relative w-22 min-w-22 h-34">
                     <CoverImageWithFallback title={item.title ?? ""} url={item.coverImageUrl} />
                 </div>
-                <div className="flex flex-col gap-4">
-                    <h3 className="text-sm lg:text-lg font-semibold">{item.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 font-light text-xs lg:text-sm">{subtitle}</p>
+                <div className="flex flex-col gap-4 max-w-100">
+                    <h3 className="text-md inline-sm font-semibold">{item.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 font-light text-sm lg:text-sm">{subtitle}</p>
                 </div>
             </Link>
         </li>

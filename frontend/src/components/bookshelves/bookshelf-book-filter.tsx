@@ -1,7 +1,8 @@
 import { ORDER_OPTIONS, OrderByOptions, OrderDirectionOptions } from "@/types/bookshelves/bookshelf-types"
 import { SortAscIcon, SortDescIcon } from "lucide-react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { ChangeEvent, ReactEventHandler, SyntheticEvent } from "react"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "../ui/select"
+
 
 // Maps internal ordering fields to more natural words
 const SELECT_MAP: Record<OrderByOptions, string> = {
@@ -29,9 +30,8 @@ export default function BookshelfBookFilters() {
         router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }
 
-    const handleSelect = (e: ChangeEvent<HTMLSelectElement>) => {
-
-        updateQueryParam("orderBy", e.target.value);
+    const handleSelect = (val: OrderByOptions) => {
+        updateQueryParam("orderBy", val);
     }
     const handleClick = () => {
         updateQueryParam("orderDir", orderDir == "asc" ? "desc" : "asc")
@@ -40,13 +40,20 @@ export default function BookshelfBookFilters() {
     return (
         <div className="flex flex-row justify-end items-center gap-2">
             <label className="text-sm font-light" htmlFor="orderSelect">ORDER BY</label>
-            <select className="border border-foreground p-1 text-sm" id="orderSelect" onChange={handleSelect} defaultValue={orderBy}>
-                {ORDER_OPTIONS.map(opt => (
-                    <option key={opt} value={opt}>
-                        {SELECT_MAP[opt]}
-                    </option>
-                ))}
-            </select>
+            <Select onValueChange={handleSelect} defaultValue="title">
+                <SelectTrigger className="w-46" >
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                    <SelectGroup>
+                        {ORDER_OPTIONS.map(opt => (
+                            <SelectItem key={opt} value={opt}>
+                                {SELECT_MAP[opt]}
+                            </SelectItem>
+                        ))}
+                    </SelectGroup>
+                </SelectContent>
+            </Select>
             <button onClick={handleClick}>
                 {orderDir == "asc"
                     ? <SortAscIcon /> : <SortDescIcon />}

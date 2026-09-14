@@ -1,20 +1,31 @@
 "use client"
 
-import { BookshelfBooksResponse, BookshelfDetails, BookshelfPageParams } from "@/types/bookshelves/bookshelf-types";
+import { BookshelfBooksResponse, BookshelfPageParams } from "@/types/bookshelves/bookshelf-types";
 import BookshelfBook from "./bookshelf-book";
 import { Skeleton } from "../ui/skeleton";
 import BookshelfPagination from "./bookshelf-pagination";
-import { use, useState } from "react";
+import { use, useState, useTransition } from "react";
 import { BookItem } from "@/types/books/books-search-response";
-import { X } from "lucide-react";
 import { Button } from "../ui/button";
 
-export default function BookshelfBooksList({ params, booksPromise }: { params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse> }) {
+export default function BookshelfBooksList({ params, booksPromise, removeBooksAction }: { params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse>, removeBooksAction: (bookIds: BookItem["id"][]) => void }) {
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedBooks, setSelectedBooks] = useState<Record<BookItem["id"], boolean>>({});
+    const [isPending, startTransition] = useTransition();
+
+    console.log(selectedBooks);
 
     const handleSelected = (val: boolean, id: BookItem["id"]) => {
-        setSelectedBooks(books => ({ ...books, [id]: val }))
+        if (val) {
+            setSelectedBooks(books => ({ ...books, [id]: val }))
+        }
+        else {
+            setSelectedBooks(prev => {
+                const copy = { ...prev };
+                delete copy[id];
+                return copy
+            })
+        }
     }
 
     const toggleSelectMode = () => {
@@ -23,7 +34,11 @@ export default function BookshelfBooksList({ params, booksPromise }: { params: B
     }
 
     const handleDelete = () => {
-
+        startTransition(() => {
+            removeBooksAction(Object.keys(selectedBooks));
+            setSelectedBooks({});
+            setIsSelectMode(false);
+        })
     }
 
 
@@ -37,7 +52,7 @@ export default function BookshelfBooksList({ params, booksPromise }: { params: B
         <ul className="flex flex-col gap-6">
             <div className="flex gap-2 w-fit min-w-14 self-end">
                 {Object.keys(selectedBooks).length > 0 && (
-                    <Button onClick={handleDelete} variant="destructive">Delete</Button>
+                    <Button onClick={handleDelete} variant="destructive" disabled={isPending}>Delete</Button>
                 )}
                 <Button variant={"outline"} className="w-fit min-w-14 self-end" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
             </div>
