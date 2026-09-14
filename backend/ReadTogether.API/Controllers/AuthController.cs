@@ -72,17 +72,6 @@ namespace ReadTogether.API.Controllers
             var command = new GoogleSignInCommand(inputModel.IdToken);
             var result = await _mediator.Send(command, cancellationToken);
 
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,    
-                Secure = true,      
-                SameSite = SameSiteMode.None,
-                Expires = DateTimeOffset.UtcNow.AddDays(1) // Sets the lifespan
-            };
-
-            // Append the cookie to the HTTP response
-            Response.Cookies.Append("X-Access-Token", result.JwtToken, cookieOptions);
-
             return Ok(result);
         }
     }

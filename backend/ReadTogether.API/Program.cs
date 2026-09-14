@@ -75,7 +75,7 @@ Sets up JWT Authentication and fetches required configuration variables
 var jwtConfig = builder.Configuration.GetSection("JWT");
 if (!jwtConfig.Exists())
 {
-    Console.WriteLine(builder.Configuration.GetDebugView());
+    Console.Error.WriteLine("Missing required JWT configuration section.");
     throw new Exception("Missing required configuration section \"JWT\"");
 }
 
@@ -108,7 +108,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 
-    // Extract JWT token from the HttpOnly cookie
     options.Events = new JwtBearerEvents
     {
         OnAuthenticationFailed = context =>
