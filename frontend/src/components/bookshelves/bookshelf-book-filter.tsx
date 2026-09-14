@@ -20,19 +20,15 @@ export default function BookshelfBookFilters() {
 
 
     const updateQueryParam = (key: string, value: string) => {
-        // 1. Create a editable copy of current search params
         const params = new URLSearchParams(searchParams.toString())
-
-        // 2. Set or update the parameter
         params.set(key, value)
-
-        // 3. Update the URL (scroll: false prevents jumping to the top)
         router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }
 
     const handleSelect = (val: OrderByOptions) => {
         updateQueryParam("orderBy", val);
     }
+
     const handleClick = () => {
         updateQueryParam("orderDir", orderDir == "asc" ? "desc" : "asc")
     }
@@ -40,7 +36,7 @@ export default function BookshelfBookFilters() {
     return (
         <div className="flex flex-row justify-end items-center gap-2">
             <label className="text-sm font-light" htmlFor="orderSelect">ORDER BY</label>
-            <Select onValueChange={handleSelect} defaultValue="title">
+            <Select onValueChange={handleSelect} defaultValue={orderBy}>
                 <SelectTrigger className="w-46" >
                     <SelectValue />
                 </SelectTrigger>
