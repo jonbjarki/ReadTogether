@@ -139,7 +139,6 @@ namespace ReadTogether.Infrastructure.Implementations
             if (shelf.UserId != userId) throw new AccessDeniedException("You are not allowed to modify this bookshelf!");
 
             int deletedRows = await _context.BookshelfBooks
-            .Include(bb => bb.Bookshelf)
             .Where(bb => bb.Bookshelf.Id == bookshelfId)
             .Where(bb => bookIds.Contains(bb.BookId))
             .ExecuteDeleteAsync(cancellationToken);
