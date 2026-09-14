@@ -3,11 +3,11 @@ using ReadTogether.Infrastructure.Interfaces;
 
 namespace ReadTogether.Application.Features.Bookshelves.CreateBookshelf
 {
-    public class DeleteBookshelfHandler : IRequestHandler<CreateBookshelfCommand, CreateBookshelfDto>
+    public class CreateBookshelfHandler : IRequestHandler<CreateBookshelfCommand, CreateBookshelfDto>
     {
         private readonly IBookshelfRepository _bookshelfRepository;
 
-        public DeleteBookshelfHandler(IBookshelfRepository bookshelfRepository)
+        public CreateBookshelfHandler(IBookshelfRepository bookshelfRepository)
         {
             _bookshelfRepository = bookshelfRepository;
         }
