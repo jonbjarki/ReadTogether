@@ -21,7 +21,8 @@ export const bookshelfListBookItemSchema = z.object({
 export const bookshelfDetailsSchema = z.object({
     id: z.number(),
     name: z.string(),
-    totalBooks: z.number()
+    totalBooks: z.number(),
+    userId: z.string()
 });
 
 export const bookshelfBooksPagingParams = z.object({

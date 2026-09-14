@@ -8,7 +8,8 @@ import { use, useState, useTransition } from "react";
 import { BookItem } from "@/types/books/books-search-response";
 import { Button } from "../ui/button";
 
-export default function BookshelfBooksList({ params, booksPromise, removeBooksAction }: { params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse>, removeBooksAction: (bookIds: BookItem["id"][]) => void }) {
+export default function BookshelfBooksList({ params, booksPromise, removeBooksAction, isOwner }: { params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse>, removeBooksAction: (bookIds: BookItem["id"][]) => void, isOwner: boolean }) {
+
     const [isSelectMode, setIsSelectMode] = useState(false);
     const [selectedBooks, setSelectedBooks] = useState<Record<BookItem["id"], boolean>>({});
     const [isPending, startTransition] = useTransition();
@@ -16,6 +17,7 @@ export default function BookshelfBooksList({ params, booksPromise, removeBooksAc
     console.log(selectedBooks);
 
     const handleSelected = (val: boolean, id: BookItem["id"]) => {
+        if (!isOwner) return;
         if (val) {
             setSelectedBooks(books => ({ ...books, [id]: val }))
         }
@@ -34,6 +36,7 @@ export default function BookshelfBooksList({ params, booksPromise, removeBooksAc
     }
 
     const handleDelete = () => {
+        if (!isOwner) return;
         startTransition(() => {
             removeBooksAction(Object.keys(selectedBooks));
             setSelectedBooks({});
@@ -50,12 +53,17 @@ export default function BookshelfBooksList({ params, booksPromise, removeBooksAc
     }
     return (
         <ul className="flex flex-col gap-6">
-            <div className="flex gap-2 w-fit min-w-14 self-end">
-                {Object.keys(selectedBooks).length > 0 && (
-                    <Button onClick={handleDelete} variant="destructive" disabled={isPending}>Delete</Button>
-                )}
-                <Button variant={"outline"} className="w-fit min-w-14 self-end" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
-            </div>
+            {isOwner &&
+
+                <div className="flex gap-2 w-fit min-w-14 self-end">
+                    {Object.keys(selectedBooks).length > 0 && (
+                        <Button onClick={handleDelete} variant="destructive" disabled={isPending}>Delete</Button>
+                    )}
+                    <Button variant={"outline"} className="w-fit min-w-14 self-end" onClick={toggleSelectMode}>{isSelectMode ? "Cancel" : "Edit"}</Button>
+                </div>
+
+            }
+
             {books.map((book, i) => (
                 <BookshelfBook book={book} key={book.id} isSelectMode={isSelectMode} isSelected={!!selectedBooks[book.id]} handleSelected={handleSelected} />
             ))}

@@ -5,7 +5,7 @@ import BookshelfBooksList, { BookshelfBooksListSkeleton } from "./bookshelf-book
 import BookshelfBookFilters from "./bookshelf-book-filter";
 import { removeFromBookshelfAction } from "@/actions/bookshelf-actions";
 
-export default function Bookshelf({ bookshelf, params, booksPromise }: { bookshelf: BookshelfDetails, params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse> }) {
+export default function Bookshelf({ bookshelf, params, booksPromise, isOwner }: { bookshelf: BookshelfDetails, params: BookshelfPageParams, booksPromise: Promise<BookshelfBooksResponse>, isOwner: boolean }) {
     const removeBooksAction = removeFromBookshelfAction.bind(null, bookshelf.id);
     return (
         <main>
@@ -18,7 +18,7 @@ export default function Bookshelf({ bookshelf, params, booksPromise }: { bookshe
             </header>
             <ul className="flex flex-col gap-4">
                 <Suspense fallback={<BookshelfBooksListSkeleton />}>
-                    <BookshelfBooksList params={params} booksPromise={booksPromise} removeBooksAction={removeBooksAction} />
+                    <BookshelfBooksList params={params} booksPromise={booksPromise} removeBooksAction={removeBooksAction} isOwner={isOwner} />
                 </Suspense>
             </ul>
 
