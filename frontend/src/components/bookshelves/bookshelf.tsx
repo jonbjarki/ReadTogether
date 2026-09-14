@@ -16,11 +16,9 @@ export default function Bookshelf({ bookshelf, params, booksPromise, isOwner }: 
                     {bookshelf.totalBooks > 0 && <BookshelfBookFilters />}
                 </div>
             </header>
-            <ul className="flex flex-col gap-4">
-                <Suspense fallback={<BookshelfBooksListSkeleton />}>
-                    <BookshelfBooksList params={params} booksPromise={booksPromise} removeBooksAction={removeBooksAction} isOwner={isOwner} />
-                </Suspense>
-            </ul>
+            <Suspense fallback={<BookshelfBooksListSkeleton />}>
+                <BookshelfBooksList params={params} booksPromise={booksPromise} removeBooksAction={removeBooksAction} isOwner={isOwner} />
+            </Suspense>
 
         </main>
     )
