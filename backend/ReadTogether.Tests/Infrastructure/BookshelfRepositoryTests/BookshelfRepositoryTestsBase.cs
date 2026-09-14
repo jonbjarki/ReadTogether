@@ -67,7 +67,7 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
                 BookId = bookId
             };
 
-        protected static BookMetadataDto CreateMetadata(
+        protected static BookDetailsDto CreateBookDetails(
             string id = "book-1",
             string title = "Test book")
             => new()

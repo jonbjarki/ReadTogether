@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using ReadTogether.Domain.DTOs;
 using ReadTogether.Infrastructure.Exceptions;
 using ReadTogether.Infrastructure.Implementations;
 
@@ -7,44 +6,29 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
 {
     public class AddBookToBookshelfTests : BookshelfRepositoryTestsBase
     {
-        private static BookMetadataDto Metadata(
-            string id = "volume-1",
-            string title = "Test Book",
-            string? coverImageUrl = "https://example.test/book.jpg")
-            => new()
-            {
-                Id = id,
-                Title = title,
-                AuthorName = "Test Author",
-                CoverImageUrl = coverImageUrl
-            };
-
         [Fact]
-        public async Task AddBookToBookshelf_PersistsBook_WhenBookIsNotAlreadyInShelf()
+        public async Task AddBookToBookshelf_PersistsJoinEntry_WhenBookIsNotAlreadyInShelf()
         {
             await using var context = CreateContext();
             var user = CreateUser();
             var bookshelf = CreateBookshelf();
-            await SeedAsync(context, user, bookshelf);
+            var book = CreateBook("volume-1", title: "Test Book");
+            await SeedAsync(context, user, bookshelf, book);
 
             var result = await new BookshelfRepository(context)
-                .AddBookToBookshelf(bookshelf.Id, Metadata(), CancellationToken.None);
+                .AddBookToBookshelf(bookshelf.Id, book.Id, CancellationToken.None);
 
             Assert.Equal(bookshelf.Id, result.BookshelfId);
-            Assert.Equal("volume-1", result.BookId);
+            Assert.Equal(book.Id, result.BookId);
             Assert.NotEqual(default, result.AddedAt);
 
             await using var verificationContext = CreateContext();
-            var persistedEntry = await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, "volume-1");
+            var persistedEntry = await verificationContext.BookshelfBooks.FindAsync(bookshelf.Id, book.Id);
             Assert.NotNull(persistedEntry);
-            var persistedBook = await verificationContext.Books.FindAsync("volume-1");
-            Assert.NotNull(persistedBook);
-            Assert.Equal("Test Book", persistedBook.Title);
-            Assert.Equal("Test Author", persistedBook.AuthorName);
         }
 
         [Fact]
-        public async Task AddBookToBookshelf_ReusesExistingBook_WhenAddingSameBookToAnotherShelf()
+        public async Task AddBookToBookshelf_ReferencesExistingBook_WhenAddingSameBookToAnotherShelf()
         {
             await using var context = CreateContext();
             var user = CreateUser();
@@ -55,7 +39,7 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             await SeedAsync(context, CreateBookshelfBook(shelfOne.Id, "volume-1"));
 
             var result = await new BookshelfRepository(context)
-                .AddBookToBookshelf(shelfTwo.Id, Metadata(title: "Conflicting Title"), CancellationToken.None);
+                .AddBookToBookshelf(shelfTwo.Id, book.Id, CancellationToken.None);
 
             Assert.Equal(shelfTwo.Id, result.BookshelfId);
 
@@ -79,16 +63,30 @@ namespace ReadTogether.Tests.Infrastructure.BookshelfRepositoryTests
             await SeedAsync(context, CreateBookshelfBook(bookshelf.Id, "volume-1"));
 
             await Assert.ThrowsAsync<BookshelfBookConflictException>(() => new BookshelfRepository(context)
-                .AddBookToBookshelf(bookshelf.Id, Metadata(), CancellationToken.None));
+                .AddBookToBookshelf(bookshelf.Id, "volume-1", CancellationToken.None));
         }
 
         [Fact]
-        public async Task AddBookToBookshelf_ThrowsConflict_WhenDatabaseRejectsInvalidBookshelfId()
+        public async Task AddBookToBookshelf_ThrowsNotFound_WhenBookshelfDoesNotExist()
         {
             await using var context = CreateContext();
+            var book = CreateBook("volume-1");
+            await SeedAsync(context, book);
 
-            await Assert.ThrowsAsync<BookshelfBookConflictException>(() => new BookshelfRepository(context)
-                .AddBookToBookshelf(999, Metadata(), CancellationToken.None));
+            await Assert.ThrowsAsync<NotFoundException>(() => new BookshelfRepository(context)
+                .AddBookToBookshelf(999, book.Id, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task AddBookToBookshelf_ThrowsNotFound_WhenBookDoesNotExist()
+        {
+            await using var context = CreateContext();
+            var user = CreateUser();
+            var bookshelf = CreateBookshelf();
+            await SeedAsync(context, user, bookshelf);
+
+            await Assert.ThrowsAsync<NotFoundException>(() => new BookshelfRepository(context)
+                .AddBookToBookshelf(bookshelf.Id, "volume", CancellationToken.None));
         }
     }
 }

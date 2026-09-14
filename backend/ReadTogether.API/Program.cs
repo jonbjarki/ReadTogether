@@ -31,6 +31,8 @@ builder.Services.AddTransient<LoggingDelegatingHandler>();
 builder.Services.AddScoped<IGoogleTokenValidator, GoogleTokenValidator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IBookshelfRepository, BookshelfRepository>();
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+
 
 builder.Services.Configure<GoogleConfiguration>(builder.Configuration.GetSection("Google"));
 builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection("JWT"));

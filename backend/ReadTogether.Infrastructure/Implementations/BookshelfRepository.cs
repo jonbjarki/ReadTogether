@@ -110,35 +110,15 @@ namespace ReadTogether.Infrastructure.Implementations
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, BookMetadataDto metadata, CancellationToken cancellationToken)
+        public async Task<BookshelfBook> AddBookToBookshelf(int bookshelfId, string bookId, CancellationToken cancellationToken)
         {
-            var bookId = metadata.Id;
-
-            var alreadyExists = await _context.BookshelfBooks
-                .AsNoTracking()
-                .AnyAsync(bb => bb.BookshelfId == bookshelfId && bb.BookId == bookId, cancellationToken);
-
-            if (alreadyExists)
+            var existing = await _context.BookshelfBooks.FindAsync(bookshelfId, bookId);
+            if (existing is not null)
             {
                 throw new BookshelfBookConflictException(bookshelfId, bookId);
             }
-
-            // The local book copy is shared across shelves: create it only the first time any
-            // shelf references this volume, and reuse the existing record on subsequent adds.
-            var book = await _context.Books.FindAsync([bookId], cancellationToken);
-            if (book is null)
-            {
-                book = new Book
-                {
-                    Id = bookId,
-                    Title = metadata.Title,
-                    AuthorName = metadata.AuthorName,
-                    FirstPublishedYear = metadata.FirstPublishedYear,
-                    CoverImageUrl = metadata.CoverImageUrl
-                };
-                _context.Books.Add(book);
-            }
-
+            var book = await _context.Books.FindAsync(bookId) ?? throw new NotFoundException("Book", bookId);
+            var bookshelf = await _context.Bookshelves.FindAsync(bookshelfId) ?? throw new NotFoundException("Bookshelf", bookshelfId.ToString());
             var bookshelfBook = new BookshelfBook
             {
                 BookshelfId = bookshelfId,
@@ -146,16 +126,10 @@ namespace ReadTogether.Infrastructure.Implementations
             };
 
             _context.BookshelfBooks.Add(bookshelfBook);
+            await _context.SaveChangesAsync(cancellationToken);
 
-            try
-            {
-                await _context.SaveChangesAsync(cancellationToken);
-                return bookshelfBook;
-            }
-            catch (DbUpdateException ex)
-            {
-                throw new BookshelfBookConflictException(bookshelfId, bookId, ex);
-            }
+            return bookshelfBook;
+
         }
 
         public async Task<bool> RemoveBooksFromBookshelf(int bookshelfId, string[] bookIds, string userId, CancellationToken cancellationToken)

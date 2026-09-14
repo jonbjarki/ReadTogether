@@ -103,7 +103,7 @@ namespace ReadTogether.API.Controllers
 
 
         [HttpPost("{bookshelfId}/books/{bookId}")]
-        public async Task<IActionResult> AddBookToBookshelf([FromRoute] int bookshelfId, [FromRoute] string bookId, [FromBody] AddBookToBookshelfInputModel inputModel)
+        public async Task<IActionResult> AddBookToBookshelf([FromRoute] int bookshelfId, [FromRoute] string bookId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null)
@@ -111,15 +111,7 @@ namespace ReadTogether.API.Controllers
                 return Unauthorized();
             }
 
-            var metadata = new BookMetadataDto
-            {
-                Id = bookId,
-                Title = inputModel.Title,
-                AuthorName = inputModel.AuthorName,
-                FirstPublishedYear = inputModel.FirstPublishedYear,
-                CoverImageUrl = inputModel.CoverImageUrl
-            };
-            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, metadata, userId);
+            var command = new AddBookToBookshelfCommand(bookshelfId, bookId, userId);
             var result = await _mediator.Send(command);
             return Ok(result);
         }
